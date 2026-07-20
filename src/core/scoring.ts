@@ -1,9 +1,10 @@
-import type { Player, WinnerScore } from "./types";
-import { CARD_DEFINITIONS } from "./cards";
+import type { Player, WinnerScore, DeckTheme } from "./types";
+import { CARD_THEMES } from "./cards";
 
-export function calculateFinalScores(players: Player[]): WinnerScore[] {
-  const legalGoodTypes = Object.keys(CARD_DEFINITIONS).filter(
-    (key) => CARD_DEFINITIONS[key].type === 'LEGAL'
+export function calculateFinalScores(players: Player[], theme: DeckTheme = 'WESTERN'): WinnerScore[] {
+  const definitions = CARD_THEMES[theme];
+  const legalGoodTypes = Object.keys(definitions).filter(
+    (key) => definitions[key].type === 'LEGAL'
   );
 
   const scores: WinnerScore[] = players.map((p) => {
@@ -14,11 +15,11 @@ export function calculateFinalScores(players: Player[]): WinnerScore[] {
     legalGoodTypes.forEach((type) => {
       const items = p.stand?.[type] || [];
       counts[type] = items.length;
-      const val = items.length * CARD_DEFINITIONS[type].value;
+      const val = items.length * definitions[type].value;
       standValue += val;
       if (items.length > 0) {
         standDetails.push(
-          `${items.length} ${CARD_DEFINITIONS[type].name}(s) ${CARD_DEFINITIONS[type].icon} (${val} pts)`
+          `${items.length} ${definitions[type].name}(s) ${definitions[type].icon} (${val} pts)`
         );
       }
     });
@@ -50,7 +51,7 @@ export function calculateFinalScores(players: Player[]): WinnerScore[] {
   });
 
   legalGoodTypes.forEach((type) => {
-    const cardDef = CARD_DEFINITIONS[type];
+    const cardDef = definitions[type];
     const sorted = [...scores].sort((a, b) => b.counts[type] - a.counts[type]);
 
     if (sorted[0] && sorted[0].counts[type] > 0) {
@@ -99,3 +100,4 @@ export function calculateFinalScores(players: Player[]): WinnerScore[] {
   scores.sort((a, b) => b.totalScore - a.totalScore);
   return scores;
 }
+

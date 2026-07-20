@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { usePeer } from "./usePeer";
 import { GameEngine } from "../core/gameEngine";
 import type { NetworkMessage } from "../network/protocol";
+import type { DeckTheme } from "../core/types";
 
 export function useGame() {
   const p2p = usePeer();
@@ -62,6 +63,12 @@ export function useGame() {
               if (success) {
                 playSfx('gavel');
               }
+            }
+            break;
+
+          case 'CHANGE_DECK_THEME':
+            if (playerId === myPeerId) {
+              engine.changeDeckTheme(payload.theme);
             }
             break;
 
@@ -200,6 +207,10 @@ export function useGame() {
     sendChat(localPlayerName || "Marchand", text);
   }, [sendChat, localPlayerName]);
 
+  const changeDeckTheme = useCallback((theme: DeckTheme) => {
+    sendAction('CHANGE_DECK_THEME', { theme });
+  }, [sendAction]);
+
   return {
     isHost,
     myPeerId,
@@ -213,6 +224,7 @@ export function useGame() {
     joinRoom,
     toggleReady,
     startGame,
+    changeDeckTheme,
     discardMarket,
     drawMarket,
     loadBag,

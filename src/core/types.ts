@@ -82,6 +82,8 @@ export interface WinnerScore {
   totalScore: number;
 }
 
+export type DeckTheme = 'WESTERN' | 'MEDIEVAL' | 'MODERN';
+
 export interface GameState {
   phase: GamePhase;
   players: Player[];
@@ -96,4 +98,5 @@ export interface GameState {
   marketPlayerStates: { [playerId: string]: MarketPlayerState };
   logs: GameLog[];
   winnerScores: WinnerScore[] | null;
+  deckTheme: DeckTheme;
 }

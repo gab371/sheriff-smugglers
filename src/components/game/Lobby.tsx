@@ -14,6 +14,8 @@ interface LobbyProps {
   onToggleReady: (ready: boolean) => void;
   onStartGame: () => void;
   onDisconnect: () => void;
+  deckTheme?: 'WESTERN' | 'MEDIEVAL' | 'MODERN';
+  onChangeDeckTheme?: (theme: 'WESTERN' | 'MEDIEVAL' | 'MODERN') => void;
 }
 
 const AVATARS = ["🤠", "👩‍🌾", "🧙‍♂️", "👨‍🍳", "👰‍♀️", "🤵‍♂️", "🌵", "🐎"];
@@ -30,6 +32,8 @@ export const Lobby: React.FC<LobbyProps> = ({
   onToggleReady,
   onStartGame,
   onDisconnect,
+  deckTheme = 'WESTERN',
+  onChangeDeckTheme,
 }) => {
   const [name, setName] = useState(`Marchand_${Math.floor(Math.random() * 1000)}`);
   const [avatar, setAvatar] = useState("🤠");
@@ -66,6 +70,32 @@ export const Lobby: React.FC<LobbyProps> = ({
                 Copier
               </Button>
             </div>
+          </div>
+
+          {/* SÉLECTEUR DE THEME DE DECK */}
+          <div className="bg-[#1c0f08] border border-[#523628] rounded-xl p-4 mb-6 flex flex-col gap-2">
+            <div className="text-sm text-amber-300 font-bold uppercase tracking-wider">Thème du Deck</div>
+            {isHost ? (
+              <div className="grid grid-cols-3 gap-2 mt-1">
+                {(['WESTERN', 'MEDIEVAL', 'MODERN'] as const).map((t) => (
+                  <button
+                    key={t}
+                    onClick={() => onChangeDeckTheme?.(t)}
+                    className={`text-xs py-2 px-1 rounded-lg border-2 font-bold transition-all ${
+                      deckTheme === t
+                        ? "bg-[#e5a93b] text-[#1c0f08] border-transparent"
+                        : "bg-[#2d1b10] border-[#523628] text-amber-300 hover:bg-[#3b251b]"
+                    }`}
+                  >
+                    {t === 'WESTERN' ? '🤠 Western' : t === 'MEDIEVAL' ? '🏰 Médiéval' : '🏙️ Moderne'}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="text-amber-100 font-semibold bg-[#2d1b10] p-2 rounded border border-[#523628] text-center text-sm">
+                Actif : {deckTheme === 'WESTERN' ? '🤠 Western' : deckTheme === 'MEDIEVAL' ? '🏰 Médiéval' : '🏙️ Moderne'}
+              </div>
+            )}
           </div>
 
           <div className="space-y-3 mb-6 max-h-60 overflow-y-auto pr-1">

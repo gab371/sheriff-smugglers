@@ -61,6 +61,8 @@ function App() {
             onToggleReady={game.toggleReady}
             onStartGame={game.startGame}
             onDisconnect={game.disconnect}
+            deckTheme={game.gameState?.deckTheme}
+            onChangeDeckTheme={game.changeDeckTheme}
           />
         ) : (
           <GameBoard

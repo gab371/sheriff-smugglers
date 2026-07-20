@@ -1,5 +1,5 @@
-import type { GameState, Player, Card, GameLog } from "./types";
-import { CARD_DEFINITIONS, createDeck, shuffleDeck } from "./cards";
+import type { GameState, Player, Card, GameLog, DeckTheme } from "./types";
+import { CARD_THEMES, createDeck, shuffleDeck, getCardDefinition } from "./cards";
 import { calculateFinalScores } from "./scoring";
 
 export interface GameEngineOptions {
@@ -30,6 +30,7 @@ export class GameEngine {
       marketPlayerStates: {},
       logs: [],
       winnerScores: null,
+      deckTheme: 'WESTERN',
     };
   }
 
@@ -59,7 +60,7 @@ export class GameEngine {
       isHost,
       gold: 50,
       hand: [],
-      stand: { apple: [], cheese: [], bread: [], chicken: [] },
+      stand: {},
       contraband: [],
       isReady: false,
     });
@@ -86,10 +87,17 @@ export class GameEngine {
     if (p) p.isReady = readyStatus;
   }
 
+  public changeDeckTheme(theme: DeckTheme): boolean {
+    if (this.state.phase !== 'LOBBY') return false;
+    this.state.deckTheme = theme;
+    this.addLog(`Le deck thématique a été changé pour : ${theme}`, 'system');
+    return true;
+  }
+
   public startGame(): boolean {
     if (this.state.players.length < 2) return false;
 
-    this.state.drawDeck = createDeck();
+    this.state.drawDeck = createDeck(this.state.deckTheme);
     this.state.discardPile1 = [];
     this.state.discardPile2 = [];
     this.state.sheriffIndex = 0;
@@ -99,7 +107,16 @@ export class GameEngine {
     this.state.players.forEach((player) => {
       player.gold = 50;
       player.hand = this.drawFromDeck(6);
-      player.stand = { apple: [], cheese: [], bread: [], chicken: [] };
+      
+      // Initialise empty arrays for the 4 legal good types of the active theme
+      const legalKeys = Object.keys(CARD_THEMES[this.state.deckTheme]).filter(
+        (key) => CARD_THEMES[this.state.deckTheme][key].type === 'LEGAL'
+      );
+      player.stand = {};
+      legalKeys.forEach((key) => {
+        player.stand[key] = [];
+      });
+
       player.contraband = [];
     });
 
@@ -258,7 +275,7 @@ export class GameEngine {
     const bag = this.state.bags[playerId];
     if (!bag || bag.status !== 'LOADED') return false;
 
-    const goodDef = CARD_DEFINITIONS[declaredGoodId];
+    const goodDef = getCardDefinition(declaredGoodId, this.state.deckTheme);
     if (!goodDef || goodDef.type !== 'LEGAL') return false;
 
     bag.declaredGood = declaredGoodId;
@@ -415,7 +432,7 @@ export class GameEngine {
 
   public endGame(): void {
     this.state.phase = 'GAME_OVER';
-    this.state.winnerScores = calculateFinalScores(this.state.players);
+    this.state.winnerScores = calculateFinalScores(this.state.players, this.state.deckTheme);
     this.addLog(`=== FIN DE LA PARTIE ! ===`, 'phase');
   }
 

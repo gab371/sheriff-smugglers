@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import type { GameState } from "../../core/types";
-import { CARD_DEFINITIONS } from "../../core/cards";
+import { CARD_THEMES, getCardDefinition } from "../../core/cards";
 import { CardView } from "./CardView";
 import { ChatBox } from "./ChatBox";
 import type { ChatMessage } from "../../network/protocol";
@@ -37,12 +37,24 @@ export const GameBoard: React.FC<GameBoardProps> = ({
   onSendChat,
   onDisconnect,
 }) => {
+  const theme = gameState.deckTheme || 'WESTERN';
+  const legalGoods = Object.keys(CARD_THEMES[theme]).filter(
+    (key) => CARD_THEMES[theme][key].type === 'LEGAL'
+  );
+
   const [selectedCards, setSelectedCards] = useState<Set<string>>(new Set());
   const [showDeclareModal, setShowDeclareModal] = useState(false);
-  const [selectedGoodId, setSelectedGoodId] = useState("apple");
+  const [selectedGoodId, setSelectedGoodId] = useState(legalGoods[0] || "apple");
   const [showBribeModal, setShowBribeModal] = useState(false);
   const [bribeGold, setBribeGold] = useState(5);
   const [bribeText, setBribeText] = useState("");
+
+  // Sync selectedGoodId when theme changes or modal opens
+  useEffect(() => {
+    if (legalGoods.length > 0 && !legalGoods.includes(selectedGoodId)) {
+      setSelectedGoodId(legalGoods[0]);
+    }
+  }, [theme, legalGoods, selectedGoodId]);
 
   const localPlayer = gameState.players.find((p) => p.id === localPlayerId);
   const sheriff = gameState.players[gameState.sheriffIndex];
@@ -298,10 +310,14 @@ export const GameBoard: React.FC<GameBoardProps> = ({
                   </div>
 
                   <div className="flex items-center gap-2 text-xs flex-wrap">
-                    <span className="bg-[#1c0f08] border border-[#523628] rounded px-2 py-0.5">🍎 {(p.stand?.apple || []).length}</span>
-                    <span className="bg-[#1c0f08] border border-[#523628] rounded px-2 py-0.5">🧀 {(p.stand?.cheese || []).length}</span>
-                    <span className="bg-[#1c0f08] border border-[#523628] rounded px-2 py-0.5">🍞 {(p.stand?.bread || []).length}</span>
-                    <span className="bg-[#1c0f08] border border-[#523628] rounded px-2 py-0.5">🍗 {(p.stand?.chicken || []).length}</span>
+                    {legalGoods.map((goodId) => {
+                      const def = CARD_THEMES[theme][goodId];
+                      return (
+                        <span key={goodId} className="bg-[#1c0f08] border border-[#523628] rounded px-2 py-0.5">
+                          {def.icon} {(p.stand?.[goodId] || []).length}
+                        </span>
+                      );
+                    })}
                     <span className="bg-red-950/40 border border-red-900/60 text-red-300 rounded px-2 py-0.5">🚨 {(p.contraband || []).length}</span>
                   </div>
 
@@ -327,7 +343,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
                       </div>
                       {bag?.declaredGood && (
                         <div className="text-[10px] text-[#e5a93b] font-bold">
-                          Marchandise déclarée : {bag.declaredCount} {CARD_DEFINITIONS[bag.declaredGood]?.name}(s) {CARD_DEFINITIONS[bag.declaredGood]?.icon}
+                          Marchandise déclarée : {bag.declaredCount} {getCardDefinition(bag.declaredGood, theme)?.name || bag.declaredGood}(s) {getCardDefinition(bag.declaredGood, theme)?.icon || ""}
                         </div>
                       )}
                     </div>
@@ -529,8 +545,8 @@ export const GameBoard: React.FC<GameBoardProps> = ({
             </p>
 
             <div className="grid grid-cols-2 gap-3 mb-6">
-              {['apple', 'cheese', 'bread', 'chicken'].map((goodId) => {
-                const def = CARD_DEFINITIONS[goodId];
+              {legalGoods.map((goodId) => {
+                const def = CARD_THEMES[theme][goodId];
                 return (
                   <button
                     key={goodId}
