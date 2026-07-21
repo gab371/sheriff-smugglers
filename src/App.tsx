@@ -115,7 +115,7 @@ function App() {
 
       <footer className="max-w-7xl mx-auto w-full text-center text-[10px] text-amber-600/50 py-6 px-4 border-t border-[#523628]/20 flex justify-between items-center">
         <div>
-          Sheriff & Smugglers - Réseau Privé Peer-to-Peer - Version 1.0.0
+          Sheriff & Smugglers - Réseau Privé Peer-to-Peer - Version v0.1.0
         </div>
         <a
           href="https://github.com/gab371/sheriff-smugglers"
