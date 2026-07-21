@@ -96,7 +96,7 @@ function App() {
           />
         ) : (
           <GameBoard
-            gameState={game.gameState}
+            gameState={game.gameState!}
             localPlayerId={game.myPeerId || ""}
             chatMessages={game.chatMessages}
             onMarketDiscard={game.discardMarket}
