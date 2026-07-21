@@ -32,7 +32,7 @@
     border-color: hsl(var(--border));
   }
   body {
-    background-color: #120b08;
+    background: radial-gradient(circle at center, #1b1206 0%, #09090b 100%);
     color: hsl(var(--foreground));
   }
 }

@@ -163,15 +163,15 @@ export const GameBoard: React.FC<GameBoardProps> = ({
   return (
     <div className="flex flex-col gap-6 text-amber-50 max-w-7xl mx-auto px-2">
       {/* Header Info */}
-      <header className="flex flex-col sm:flex-row justify-between items-center bg-[#2d1b10] border-2 border-[#e5a93b] rounded-xl px-5 py-3 gap-2">
+      <header className="flex flex-col sm:flex-row justify-between items-center bg-[#2d1b10]/60 backdrop-blur-md border border-[#523628]/60 rounded-3xl px-5 py-4 gap-2">
         <div className="font-serif font-bold text-[#e5a93b] tracking-wide text-lg">
           🤠 {getPhaseLabel(phase)}
         </div>
         <div className="text-sm font-semibold flex items-center gap-4">
-          <span className="bg-[#1c0f08] px-3 py-1 rounded-full border border-[#523628]">
+          <span className="bg-[#1c0f08] px-3 py-1.5 rounded-full border border-[#523628]/60 font-mono text-amber-300/80">
             Manche {gameState.roundNumber} / {gameState.totalRounds}
           </span>
-          <span className="text-[#e5a93b] bg-[#3b251b] px-3 py-1 rounded-full border border-[#e5a93b]">
+          <span className="text-[#e5a93b] bg-[#2d1b10]/60 px-3 py-1.5 rounded-full border border-[#523628]/60">
             Votre Bourse : <strong>{localPlayer?.gold || 0} 🪙</strong>
           </span>
         </div>
@@ -182,7 +182,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
         {/* Table Area */}
         <div className="lg:col-span-3 flex flex-col gap-6">
           {/* Sheriff Desk Banner */}
-          <div className="bg-[#3b251b] border-2 border-[#523628] rounded-xl p-4 flex flex-col sm:flex-row justify-between items-center gap-4 shadow-xl">
+          <div className="bg-[#2d1b10]/60 backdrop-blur-md border border-[#523628]/60 rounded-3xl p-5 flex flex-col sm:flex-row justify-between items-center gap-4 shadow-xl">
             <div className="flex items-center gap-3">
               <span className="text-4xl">🎖️</span>
               <div>
@@ -198,14 +198,14 @@ export const GameBoard: React.FC<GameBoardProps> = ({
               <div className="text-sm font-semibold text-amber-200">
                 Bourse du Shérif : <span className="text-[#e5a93b]">{sheriff ? sheriff.gold : 0} 🪙</span>
               </div>
-              <div className="text-xs text-amber-400/80 italic mt-0.5">
+              <div className="text-xs text-[#e5a93b]/85 italic mt-0.5">
                 {isSheriff ? "⭐ VOUS ÊTES LE SHÉRIF ! ⭐" : "Négociez des pots-de-vin pour passer vos marchandises."}
               </div>
             </div>
           </div>
 
           {/* Saloon Decks */}
-          <div className="bg-[#1c0f08] border-2 border-[#523628]/60 rounded-2xl p-6 flex flex-wrap justify-center items-center gap-8 shadow-inner">
+          <div className="bg-[#1c0f08]/40 border border-[#523628]/60 rounded-3xl p-6 flex flex-wrap justify-center items-center gap-8 shadow-inner">
             {/* Draw Deck */}
             <div
               onClick={() => {
@@ -213,20 +213,20 @@ export const GameBoard: React.FC<GameBoardProps> = ({
                   onMarketDrawOne('DECK');
                 }
               }}
-              className={`w-28 h-40 rounded-xl bg-gradient-to-b from-[#2a1305] to-[#1c0c03] border-2 border-[#80501a] flex flex-col justify-center items-center p-3 select-none text-center shadow-lg relative ${
+              className={`w-24 h-36 rounded-2xl bg-gradient-to-b from-[#3b251b] to-[#1c0f08] border border-[#523628] flex flex-col justify-center items-center p-3 select-none text-center shadow-lg relative ${
                 phase === 'MARKET_DRAW' && !isSheriff && gameState.marketPlayerStates[localPlayerId]?.step === 'DRAWING'
                   ? 'ring-4 ring-[#e5a93b] cursor-pointer hover:-translate-y-1'
                   : ''
               }`}
             >
-              <span className="text-4xl mb-2">🃏</span>
-              <span className="font-bold text-sm tracking-wide text-[#e5a93b] font-serif">Pioche</span>
-              <span className="text-xs text-amber-200/60 mt-1">({gameState.drawDeck.length} cartes)</span>
+              <span className="text-3xl mb-1.5">🃏</span>
+              <span className="font-bold text-xs tracking-wide text-[#e5a93b] font-serif">Pioche</span>
+              <span className="text-[10px] text-amber-300 mt-1">({gameState.drawDeck.length} cartes)</span>
             </div>
 
             {/* Discard Deck 1 */}
             <div className="flex flex-col items-center gap-1.5 select-none">
-              <div className="text-[10px] text-amber-400/80 uppercase font-mono font-bold">
+              <div className="text-[9px] text-amber-400/80 uppercase font-mono font-bold">
                 Défausse 1 ({gameState.discardPile1.length})
               </div>
               <div
@@ -235,7 +235,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
                     onMarketDrawOne('DISCARD1');
                   }
                 }}
-                className={`relative w-28 h-40 rounded-xl transition-all duration-200 ${
+                className={`relative w-24 h-36 rounded-2xl transition-all duration-200 ${
                   phase === 'MARKET_DRAW' && !isSheriff && gameState.marketPlayerStates[localPlayerId]?.step === 'DRAWING' && gameState.discardPile1.length > 0
                     ? 'ring-4 ring-[#e5a93b] cursor-pointer hover:-translate-y-1 active:scale-95'
                     : ''
@@ -244,7 +244,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
                 {gameState.discardPile1.length > 0 ? (
                   <CardView card={gameState.discardPile1[gameState.discardPile1.length - 1]} selectable={false} />
                 ) : (
-                  <div className="w-full h-full rounded-xl bg-[#2d1b10]/40 border-2 border-dashed border-[#523628]/60 flex items-center justify-center text-amber-500/30 font-bold text-xs">
+                  <div className="w-full h-full rounded-2xl bg-[#1c0f08] border border-dashed border-[#523628]/60 flex items-center justify-center text-amber-500/30 font-bold text-xs">
                     Vide
                   </div>
                 )}
@@ -253,7 +253,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
 
             {/* Discard Deck 2 */}
             <div className="flex flex-col items-center gap-1.5 select-none">
-              <div className="text-[10px] text-amber-400/80 uppercase font-mono font-bold">
+              <div className="text-[9px] text-amber-400/80 uppercase font-mono font-bold">
                 Défausse 2 ({gameState.discardPile2.length})
               </div>
               <div
@@ -262,7 +262,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
                     onMarketDrawOne('DISCARD2');
                   }
                 }}
-                className={`relative w-28 h-40 rounded-xl transition-all duration-200 ${
+                className={`relative w-24 h-36 rounded-2xl transition-all duration-200 ${
                   phase === 'MARKET_DRAW' && !isSheriff && gameState.marketPlayerStates[localPlayerId]?.step === 'DRAWING' && gameState.discardPile2.length > 0
                     ? 'ring-4 ring-[#e5a93b] cursor-pointer hover:-translate-y-1 active:scale-95'
                     : ''
@@ -271,7 +271,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
                 {gameState.discardPile2.length > 0 ? (
                   <CardView card={gameState.discardPile2[gameState.discardPile2.length - 1]} selectable={false} />
                 ) : (
-                  <div className="w-full h-full rounded-xl bg-[#2d1b10]/40 border-2 border-dashed border-[#523628]/60 flex items-center justify-center text-amber-500/30 font-bold text-xs">
+                  <div className="w-full h-full rounded-2xl bg-[#1c0f08] border border-dashed border-[#523628]/60 flex items-center justify-center text-amber-500/30 font-bold text-xs">
                     Vide
                   </div>
                 )}
@@ -290,18 +290,18 @@ export const GameBoard: React.FC<GameBoardProps> = ({
               return (
                 <div
                   key={p.id}
-                  className={`bg-[#2d1b10] border-2 rounded-xl p-4 flex flex-col justify-between gap-3 shadow-md ${
+                  className={`bg-[#2d1b10]/60 backdrop-blur-md border rounded-3xl p-4 flex flex-col gap-3 shadow-md ${
                     isPlayerSheriff ? "border-[#e5a93b]" : "border-[#523628]/60"
                   }`}
                 >
                   <div className="flex justify-between items-center border-b border-[#523628]/40 pb-2">
                     <div className="flex items-center gap-2 font-bold font-serif">
                       <span className="text-2xl">{p.avatar}</span>
-                      <span>
+                      <span className="text-amber-105">
                         {p.name} {isLocal ? "(Vous)" : ""}
                       </span>
                       {isPlayerSheriff && (
-                        <span className="bg-[#e5a93b] text-[#1c0f08] text-[9px] font-bold px-1 py-0.5 rounded">
+                        <span className="bg-[#e5a93b] text-[#1c0f08] text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">
                           SHÉRIF
                         </span>
                       )}
@@ -313,24 +313,24 @@ export const GameBoard: React.FC<GameBoardProps> = ({
                     {legalGoods.map((goodId) => {
                       const def = CARD_THEMES[theme][goodId];
                       return (
-                        <span key={goodId} className="bg-[#1c0f08] border border-[#523628] rounded px-2 py-0.5">
+                        <span key={goodId} className="bg-[#1c0f08] border border-[#523628]/45 rounded-xl px-2.5 py-0.5 flex items-center gap-1">
                           {def.icon} {(p.stand?.[goodId] || []).length}
                         </span>
                       );
                     })}
-                    <span className="bg-red-950/40 border border-red-900/60 text-red-300 rounded px-2 py-0.5">🚨 {(p.contraband || []).length}</span>
+                    <span className="bg-rose-955/20 border border-rose-900/40 text-rose-450 rounded-xl px-2.5 py-0.5">🚨 {(p.contraband || []).length}</span>
                   </div>
 
                   {!isPlayerSheriff && (
-                    <div className="bg-[#1c0f08] border border-[#523628] rounded-lg p-3 text-xs flex flex-col gap-2">
+                    <div className="bg-[#1c0f08] border border-[#523628]/45 rounded-2xl p-3 text-xs flex flex-col gap-2">
                       <div className="flex justify-between items-center">
-                        <span className="font-bold text-amber-300">👜 Sac de Marchandises</span>
+                        <span className="font-bold text-amber-300/90">👜 Sac de Marchandises</span>
                         <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                          bag?.status === 'WAITING' ? 'bg-amber-900/30 text-amber-400' :
-                          bag?.status === 'LOADED' ? 'bg-[#523628] text-amber-100' :
-                          bag?.status === 'DECLARED' ? 'bg-[#e5a93b] text-[#1c0f08]' :
-                          bag?.status === 'PASSED' ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' :
-                          'bg-red-950 text-red-400 border border-red-800'
+                          bag?.status === 'WAITING' ? 'bg-[#2d1b10] text-amber-400 border border-[#523628]/40' :
+                          bag?.status === 'LOADED' ? 'bg-[#3b251b] text-amber-250 border border-[#523628]/60' :
+                          bag?.status === 'DECLARED' ? 'bg-[#e5a93b]/20 text-[#e5a93b] border border-[#e5a93b]/30' :
+                          bag?.status === 'PASSED' ? 'bg-emerald-955/20 text-emerald-400 border border-emerald-900/40' :
+                          'bg-red-955/20 text-red-400 border border-red-900/40'
                         }`}>
                           {bag?.status === 'WAITING' ? 'Préparation...' :
                            bag?.status === 'LOADED' ? 'Fermé' :
@@ -338,7 +338,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
                            bag?.status === 'PASSED' ? 'Laissé Passer ✓' : 'Fouillé 🔎'}
                         </span>
                       </div>
-                      <div className="text-amber-100/80">
+                      <div className="text-amber-100/70">
                         {bag ? (bag.status === 'WAITING' ? 'En attente...' : `${bag.declaredCount || bag.cards.length} carte(s)`) : 'Vide'}
                       </div>
                       {bag?.declaredGood && (
@@ -350,7 +350,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
                   )}
 
                   {activeBribe && (
-                    <div className="bg-[#e5a93b]/10 border border-[#e5a93b]/30 rounded-lg p-2 text-xs flex flex-col gap-0.5">
+                    <div className="bg-[#e5a93b]/10 border border-[#e5a93b]/30 rounded-2xl p-2.5 text-xs flex flex-col gap-0.5">
                       <span className="text-[#e5a93b] font-bold">🤝 Proposition de pot-de-vin :</span>
                       <span className="text-amber-100 font-medium">
                         {activeBribe.gold} Or {activeBribe.text ? `("${activeBribe.text}")` : ""}
@@ -362,13 +362,13 @@ export const GameBoard: React.FC<GameBoardProps> = ({
                     <div className="flex gap-2 mt-1">
                       <Button
                         onClick={() => onSheriffPass(p.id)}
-                        className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold py-2 h-auto"
+                        className="flex-1 bg-[#e5a93b] hover:bg-[#f6bd4f] text-[#1c0f08] text-xs font-bold py-2 h-auto rounded-xl"
                       >
                         Laisser Passer
                       </Button>
                       <Button
                         onClick={() => onSheriffInspect(p.id)}
-                        className="flex-1 bg-red-700 hover:bg-red-600 text-white text-xs font-bold py-2 h-auto"
+                        className="flex-1 bg-red-700 hover:bg-red-600 text-white text-xs font-bold py-2 h-auto rounded-xl border border-red-800"
                       >
                         Inspecter 🔎
                       </Button>
@@ -383,14 +383,14 @@ export const GameBoard: React.FC<GameBoardProps> = ({
         {/* Side Panel (Logs & Chat) */}
         <div className="flex flex-col gap-6">
           {/* Logs */}
-          <div className="flex flex-col h-96 bg-[#1c0f08] border-2 border-[#523628] rounded-xl overflow-hidden shadow-xl">
-            <div className="bg-[#2d1b10] border-b border-[#523628] px-4 py-2.5 text-xs font-bold text-[#e5a93b] uppercase tracking-wider">
+          <div className="flex flex-col h-96 bg-[#2d1b10]/60 border border-[#523628]/60 rounded-3xl overflow-hidden shadow-xl">
+            <div className="bg-[#1c0f08]/50 border-b border-[#523628]/60 px-4 py-2.5 text-xs font-bold text-[#e5a93b] uppercase tracking-widest">
               Journal du Saloon 📜
             </div>
             <div className="flex-1 p-3 overflow-y-auto space-y-1.5 text-xs font-mono">
               {gameState.logs.map((log) => (
                 <div key={log.id} className="text-amber-100/90 leading-relaxed break-words">
-                  <span className="text-amber-500/50 font-bold mr-1">[{log.timestamp}]</span>
+                  <span className="text-[#e5a93b]/50 font-bold mr-1">[{log.timestamp}]</span>
                   <span className={`${
                     log.type === 'warning' ? 'text-red-400 font-semibold' :
                     log.type === 'system' ? 'text-cyan-400 font-semibold' :
@@ -414,7 +414,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
       </div>
 
       {/* Local Player Controller Bar at Bottom */}
-      <footer className="bg-[#2d1b10] border-2 border-[#e5a93b] rounded-2xl p-5 shadow-2xl mt-4">
+      <footer className="bg-[#2d1b10]/60 backdrop-blur-md border border-[#523628]/60 rounded-3xl p-5 shadow-xl mt-4">
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-4 border-b border-[#523628]/40 pb-3">
           <div className="font-serif font-bold text-lg text-amber-100 flex items-center gap-2">
             🎒 Vos Marchandises en Main ({localPlayer?.hand.length || 0} cartes)
@@ -439,7 +439,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
                 ) : (
                   <Button
                     onClick={() => onMarketDiscard(Array.from(selectedCards))}
-                    className="bg-[#e5a93b] hover:bg-[#f6bd4f] text-[#1c0f08] font-bold h-10 px-6"
+                    className="bg-[#e5a93b] hover:bg-[#f6bd4f] text-[#1c0f08] font-bold h-10 px-6 rounded-xl"
                   >
                     {selectedCards.size > 0 ? `Défausser ces ${selectedCards.size} carte(s)` : "Conserver ma main"}
                   </Button>
@@ -457,7 +457,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
                   <Button
                     onClick={() => onLoadBag(Array.from(selectedCards))}
                     disabled={selectedCards.size < 1 || selectedCards.size > 5}
-                    className="bg-[#e5a93b] hover:bg-[#f6bd4f] text-[#1c0f08] disabled:bg-[#3b251b] disabled:text-[#e5a93b]/40 font-bold h-10 px-6"
+                    className="bg-[#e5a93b] hover:bg-[#f6bd4f] text-[#1c0f08] disabled:bg-zinc-800 disabled:text-zinc-500 font-bold h-10 px-6 rounded-xl"
                   >
                     Sceller le Sac ({selectedCards.size})
                   </Button>
@@ -468,13 +468,13 @@ export const GameBoard: React.FC<GameBoardProps> = ({
             {phase === 'DECLARATION' && !isSheriff && (
               <>
                 {gameState.bags[localPlayerId]?.status === 'DECLARED' ? (
-                  <span className="text-emerald-400 text-sm font-semibold">
+                  <span className="text-emerald-450 text-sm font-semibold">
                     ✓ Déclaration envoyée ! En attente...
                   </span>
                 ) : (
                   <Button
                     onClick={() => setShowDeclareModal(true)}
-                    className="bg-[#e5a93b] hover:bg-[#f6bd4f] text-[#1c0f08] font-bold h-10 px-6"
+                    className="bg-[#e5a93b] hover:bg-[#f6bd4f] text-[#1c0f08] font-bold h-10 px-6 rounded-xl"
                   >
                     Déclarer Cargaison
                   </Button>
@@ -491,7 +491,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
                       setBribeText("");
                       setShowBribeModal(true);
                     }}
-                    className="bg-[#3b251b] hover:bg-[#523628] text-[#e5a93b] border border-[#e5a93b] font-bold h-10 px-6"
+                    className="bg-zinc-800 hover:bg-zinc-700 text-[#e5a93b] border border-[#523628]/60 font-bold h-10 px-6 rounded-xl"
                   >
                     Proposer un Pot-de-Vin 🤝
                   </Button>
@@ -502,7 +502,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
             {phase === 'ROUND_END' && isSheriff && (
               <Button
                 onClick={onNextRound}
-                className="bg-[#e5a93b] hover:bg-[#f6bd4f] text-[#1c0f08] font-bold h-10 px-6"
+                className="bg-[#e5a93b] hover:bg-[#f6bd4f] text-[#1c0f08] font-bold h-10 px-6 rounded-xl"
               >
                 Passer à la Manche Suivante
               </Button>
@@ -526,21 +526,23 @@ export const GameBoard: React.FC<GameBoardProps> = ({
               />
             ))
           ) : (
-            <div className="text-amber-500/40 font-bold italic text-sm py-8">
+            <div className="text-zinc-600 font-bold italic text-sm py-8">
               Aucune carte en main.
             </div>
           )}
         </div>
       </footer>
 
+
+
       {/* Declaration Modal */}
       {showDeclareModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1c0f08]/80 backdrop-blur-sm">
-          <div className="bg-[#2d1b10] border-4 border-[#e5a93b] rounded-2xl p-6 w-full max-w-sm text-amber-50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/80 backdrop-blur-sm">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 w-full max-w-sm text-zinc-100 shadow-2xl">
             <h2 className="text-xl font-bold font-serif text-[#e5a93b] text-center mb-4 uppercase tracking-wider">
               Déclaration de Cargaison
             </h2>
-            <p className="text-xs text-amber-200 text-center mb-4">
+            <p className="text-xs text-zinc-400 text-center mb-4">
               Sélectionnez la marchandise légale déclarée au Shérif (pour vos {gameState.bags[localPlayerId]?.cards.length} carte(s)) :
             </p>
 
@@ -551,10 +553,10 @@ export const GameBoard: React.FC<GameBoardProps> = ({
                   <button
                     key={goodId}
                     onClick={() => setSelectedGoodId(goodId)}
-                    className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all text-sm font-semibold select-none ${
+                    className={`flex items-center gap-3 p-3 rounded-2xl border-2 transition-all text-sm font-semibold select-none ${
                       selectedGoodId === goodId
-                        ? "bg-[#3b251b] border-[#e5a93b] text-amber-100"
-                        : "bg-[#1c0f08] border-[#523628] hover:bg-[#3b251b]/40 text-amber-300"
+                        ? "bg-zinc-800 border-[#e5a93b] text-zinc-100"
+                        : "bg-zinc-950 border-zinc-850 hover:bg-zinc-800/40 text-zinc-300"
                     }`}
                   >
                     <span className="text-2xl">{def.icon}</span>
@@ -568,7 +570,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
               <Button
                 variant="outline"
                 onClick={() => setShowDeclareModal(false)}
-                className="bg-transparent border-[#523628] text-amber-200 hover:bg-[#3b251b]"
+                className="bg-transparent border-zinc-800 text-zinc-300 hover:bg-zinc-800 rounded-2xl"
               >
                 Annuler
               </Button>
@@ -577,7 +579,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
                   onDeclareBag(selectedGoodId);
                   setShowDeclareModal(false);
                 }}
-                className="bg-[#e5a93b] hover:bg-[#f6bd4f] text-[#1c0f08]"
+                className="bg-[#e5a93b] hover:bg-[#f6bd4f] text-[#1c0f08] rounded-2xl"
               >
                 Déclarer
               </Button>
@@ -588,15 +590,15 @@ export const GameBoard: React.FC<GameBoardProps> = ({
 
       {/* Bribe Modal */}
       {showBribeModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1c0f08]/80 backdrop-blur-sm">
-          <div className="bg-[#2d1b10] border-4 border-[#e5a93b] rounded-2xl p-6 w-full max-w-sm text-amber-50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/80 backdrop-blur-sm">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 w-full max-w-sm text-zinc-100 shadow-2xl">
             <h2 className="text-xl font-bold font-serif text-[#e5a93b] text-center mb-4 uppercase tracking-wider">
               Offrir un Pot-de-Vin 🤝
             </h2>
 
             <div className="space-y-4 mb-6">
               <div>
-                <label className="block text-xs uppercase tracking-wider font-bold text-amber-300 mb-1">
+                <label className="block text-xs uppercase tracking-wider font-bold text-zinc-400 mb-1">
                   Pièces d'Or offertes :
                 </label>
                 <input
@@ -605,12 +607,12 @@ export const GameBoard: React.FC<GameBoardProps> = ({
                   max={localPlayer?.gold || 0}
                   value={bribeGold}
                   onChange={(e) => setBribeGold(Math.min(localPlayer?.gold || 0, Math.max(0, parseInt(e.target.value) || 0)))}
-                  className="w-full bg-[#1c0f08] border border-[#523628] rounded-lg px-4 py-2 text-amber-100 focus:outline-none focus:border-[#e5a93b]"
+                  className="w-full bg-zinc-950 border border-zinc-850 rounded-2xl px-4 py-2 text-zinc-100 focus:outline-none focus:border-[#e5a93b]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs uppercase tracking-wider font-bold text-amber-300 mb-1">
+                <label className="block text-xs uppercase tracking-wider font-bold text-zinc-400 mb-1">
                   Promesse / Message au Shérif :
                 </label>
                 <input
@@ -618,7 +620,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
                   placeholder="Ferme les yeux, y a que des pommes..."
                   value={bribeText}
                   onChange={(e) => setBribeText(e.target.value)}
-                  className="w-full bg-[#1c0f08] border border-[#523628] rounded-lg px-4 py-2 text-amber-100 focus:outline-none focus:border-[#e5a93b]"
+                  className="w-full bg-zinc-950 border border-zinc-850 rounded-2xl px-4 py-2 text-zinc-100 focus:outline-none focus:border-[#e5a93b]"
                 />
               </div>
             </div>
@@ -627,7 +629,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
               <Button
                 variant="outline"
                 onClick={() => setShowBribeModal(false)}
-                className="bg-transparent border-[#523628] text-amber-200 hover:bg-[#3b251b]"
+                className="bg-transparent border-zinc-800 text-zinc-300 hover:bg-zinc-800 rounded-2xl"
               >
                 Annuler
               </Button>
@@ -636,7 +638,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
                   onOfferBribe(bribeGold, bribeText);
                   setShowBribeModal(false);
                 }}
-                className="bg-[#e5a93b] hover:bg-[#f6bd4f] text-[#1c0f08]"
+                className="bg-[#e5a93b] hover:bg-[#f6bd4f] text-[#1c0f08] rounded-2xl"
               >
                 Envoyer
               </Button>
