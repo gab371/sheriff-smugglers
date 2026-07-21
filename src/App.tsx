@@ -2,11 +2,12 @@ import { useState } from "react";
 import { useGame } from "./hooks/useGame";
 import { Lobby } from "./components/game/Lobby";
 import { GameBoard } from "./components/game/GameBoard";
-import { ShieldAlert } from "lucide-react";
+import { ShieldAlert, FileText, X } from "lucide-react";
 
 function App() {
   const game = useGame();
   const [copied, setCopied] = useState(false);
+  const [showRules, setShowRules] = useState(false);
 
   const handleCopy = () => {
     if (game.hostPeerId) {
@@ -56,6 +57,15 @@ function App() {
               DÉCONNECTÉ
             </div>
           )}
+
+          <button
+            onClick={() => setShowRules(true)}
+            className="flex items-center gap-1 bg-[#3b251b] hover:bg-[#523628] text-amber-300 hover:text-amber-100 px-3 py-1.5 rounded-full border border-[#523628]/60 font-bold transition-all"
+            title="Règles du jeu"
+          >
+            <FileText className="w-4 h-4" />
+            <span>Règles</span>
+          </button>
 
           {game.gameState && game.gameState.phase !== 'LOBBY' && (
             <div className="flex items-center gap-2 border-l border-[#523628]/40 pl-3">
@@ -138,6 +148,73 @@ function App() {
           <span>Dépôt GitHub</span>
         </a>
       </footer>
+
+      {/* Rules Modal */}
+      {showRules && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/80 backdrop-blur-md transition-all">
+          <div className="bg-[#2d1b10] border border-[#523628] rounded-3xl p-6 w-full max-w-2xl text-amber-50 shadow-2xl relative max-h-[90vh] overflow-y-auto font-sans">
+            <button
+              onClick={() => setShowRules(false)}
+              className="absolute top-4 right-4 text-amber-500 hover:text-amber-300 transition-colors"
+              title="Fermer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <h2 className="text-2xl font-bold font-serif text-[#e5a93b] mb-4 flex items-center gap-2 border-b border-[#523628]/40 pb-2">
+              🤠 Règles : Sheriff & Smugglers
+            </h2>
+
+            <div className="space-y-4 text-sm text-amber-100/90 leading-relaxed">
+              <section>
+                <h3 className="font-bold text-[#e5a93b] font-serif uppercase tracking-wide text-xs mb-1">Objectif</h3>
+                <p>
+                  Devenir le marchand le plus riche en vendant vos marchandises légales au marché d'El Paso ou en y faisant passer de la contrebande en douce. Vous gagnez des pièces d'or en vendant des cartes et via des bonus de majorité en fin de partie.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="font-bold text-[#e5a93b] font-serif uppercase tracking-wide text-xs mb-1">Déroulement d'une manche</h3>
+                <p className="mb-2">Chaque joueur incarne le rôle du <strong>Shérif</strong> à tour de rôle. Pour les autres marchands, la manche se compose de 3 phases :</p>
+                <ul className="list-disc list-inside pl-2 space-y-1.5">
+                  <li>
+                    <strong className="text-amber-200">1. Le Marché (Pioche & Défausse) :</strong> Les marchands peuvent défausser jusqu'à 5 cartes de leur main et en piocher de nouvelles depuis la pioche cachée ou les deux piles de défausse visibles.
+                  </li>
+                  <li>
+                    <strong className="text-amber-200">2. Chargement du Sac :</strong> Les marchands choisissent secrètement entre 1 et 5 cartes de leur main à placer dans leur sac à marchandises.
+                  </li>
+                  <li>
+                    <strong className="text-amber-200">3. Déclaration :</strong> Chaque marchand déclare le contenu de son sac au Shérif. Vous devez obligatoirement déclarer le nombre exact de cartes et <strong>une seule marchandise légale</strong> (ex: "4 Pommes"). Vous pouvez mentir sur le type de marchandise !
+                  </li>
+                </ul>
+              </section>
+
+              <section>
+                <h3 className="font-bold text-[#e5a93b] font-serif uppercase tracking-wide text-xs mb-1">Phase d'Inspection & Pots-de-vin</h3>
+                <p className="mb-2">Le Shérif décide d'inspecter ou de laisser passer le sac de chaque marchand. Les marchands peuvent proposer des pots-de-vin en pièces d'or (ou d'autres promesses) pour convaincre le Shérif de fermer les yeux.</p>
+                <ul className="list-disc list-inside pl-2 space-y-1.5">
+                  <li>
+                    <strong className="text-amber-200">Le sac passe sans inspection :</strong> Le marchand place ses marchandises sur son étal (le Shérif ne saura jamais s'il y avait de la contrebande).
+                  </li>
+                  <li>
+                    <strong className="text-red-400">Le Shérif inspecte et le marchand a menti :</strong> Le marchand doit défausser toutes ses cartes non déclarées ou de contrebande, et payer une amende (en or) au Shérif pour chaque infraction. Les cartes honnêtes vont sur son étal.
+                  </li>
+                  <li>
+                    <strong className="text-emerald-400">Le Shérif inspecte et le marchand était honnête :</strong> Le Shérif doit payer un dédommagement en or au marchand égal à la pénalité des cartes inspectées ! Le marchand place tout sur son étal.
+                  </li>
+                </ul>
+              </section>
+
+              <section className="bg-[#1c0f08] border border-[#523628]/60 p-3 rounded-2xl">
+                <h4 className="font-serif font-bold text-[#e5a93b] text-xs uppercase mb-1">💡 Astuce</h4>
+                <p className="text-xs text-amber-300/80">
+                  La contrebande rapporte énormément de points à la fin, mais les pénalités d'amendes sont élevées en cas de fouille. Utilisez le tchat pour négocier des accords secrets avec le Shérif !
+                </p>
+              </section>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
