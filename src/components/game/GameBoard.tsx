@@ -378,43 +378,9 @@ export const GameBoard: React.FC<GameBoardProps> = ({
               );
             })}
           </div>
-        </div>
 
-        {/* Side Panel (Logs & Chat) */}
-        <div className="flex flex-col gap-6">
-          {/* Logs */}
-          <div className="flex flex-col h-96 bg-[#2d1b10]/60 border border-[#523628]/60 rounded-3xl overflow-hidden shadow-xl">
-            <div className="bg-[#1c0f08]/50 border-b border-[#523628]/60 px-4 py-2.5 text-xs font-bold text-[#e5a93b] uppercase tracking-widest">
-              Journal du Saloon 📜
-            </div>
-            <div className="flex-1 p-3 overflow-y-auto space-y-1.5 text-xs font-mono">
-              {gameState.logs.map((log) => (
-                <div key={log.id} className="text-amber-100/90 leading-relaxed break-words">
-                  <span className="text-[#e5a93b]/50 font-bold mr-1">[{log.timestamp}]</span>
-                  <span className={`${
-                    log.type === 'warning' ? 'text-red-400 font-semibold' :
-                    log.type === 'system' ? 'text-cyan-400 font-semibold' :
-                    log.type === 'phase' ? 'text-emerald-400 font-bold' :
-                    log.type === 'sheriff' ? 'text-[#e5a93b] font-bold' :
-                    log.type === 'bribe' ? 'text-yellow-400 font-semibold' :
-                    log.type === 'inspection-liar' ? 'text-red-500 font-bold' :
-                    log.type === 'inspection-honest' ? 'text-emerald-500 font-bold' :
-                    'text-amber-100/80'
-                  }`}>
-                    {log.message}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Chat */}
-          <ChatBox messages={chatMessages} onSendMessage={onSendChat} />
-        </div>
-      </div>
-
-      {/* Local Player Controller Bar at Bottom */}
-      <footer className="bg-[#2d1b10]/60 backdrop-blur-md border border-[#523628]/60 rounded-3xl p-5 shadow-xl mt-4">
+          {/* Local Player Controller Bar */}
+          <div className="bg-[#2d1b10]/60 backdrop-blur-md border border-[#523628]/60 rounded-3xl p-5 shadow-xl">
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-4 border-b border-[#523628]/40 pb-3">
           <div className="font-serif font-bold text-lg text-amber-100 flex items-center gap-2">
             🎒 Vos Marchandises en Main ({localPlayer?.hand.length || 0} cartes)
@@ -531,7 +497,41 @@ export const GameBoard: React.FC<GameBoardProps> = ({
             </div>
           )}
         </div>
-      </footer>
+          </div>
+        </div>
+
+        {/* Side Panel (Logs & Chat) */}
+        <div className="flex flex-col gap-6">
+          {/* Logs */}
+          <div className="flex flex-col h-96 bg-[#2d1b10]/60 border border-[#523628]/60 rounded-3xl overflow-hidden shadow-xl">
+            <div className="bg-[#1c0f08]/50 border-b border-[#523628]/60 px-4 py-2.5 text-xs font-bold text-[#e5a93b] uppercase tracking-widest">
+              Journal du Saloon 📜
+            </div>
+            <div className="flex-1 p-3 overflow-y-auto space-y-1.5 text-xs font-mono">
+              {gameState.logs.map((log) => (
+                <div key={log.id} className="text-amber-100/90 leading-relaxed break-words">
+                  <span className="text-[#e5a93b]/50 font-bold mr-1">[{log.timestamp}]</span>
+                  <span className={`${
+                    log.type === 'warning' ? 'text-red-400 font-semibold' :
+                    log.type === 'system' ? 'text-cyan-400 font-semibold' :
+                    log.type === 'phase' ? 'text-emerald-400 font-bold' :
+                    log.type === 'sheriff' ? 'text-[#e5a93b] font-bold' :
+                    log.type === 'bribe' ? 'text-yellow-400 font-semibold' :
+                    log.type === 'inspection-liar' ? 'text-red-500 font-bold' :
+                    log.type === 'inspection-honest' ? 'text-emerald-500 font-bold' :
+                    'text-amber-100/80'
+                  }`}>
+                    {log.message}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Chat */}
+          <ChatBox messages={chatMessages} onSendMessage={onSendChat} />
+        </div>
+      </div>
 
 
 

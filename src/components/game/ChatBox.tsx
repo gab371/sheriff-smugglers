@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import type { ChatMessage } from "../../network/protocol";
 import { Button } from "../ui/button";
+import { Send } from "lucide-react";
 
 interface ChatBoxProps {
   messages: ChatMessage[];
@@ -65,12 +66,13 @@ export const ChatBox: React.FC<ChatBoxProps> = ({ messages, onSendMessage }) => 
           placeholder="Un pot-de-vin en secret ?..."
           className="flex-1 bg-[#1c0f08] border border-[#523628] rounded-lg px-3 py-1.5 text-xs text-amber-100 focus:outline-none focus:border-[#e5a93b]"
         />
-        <Button
+        <button
           onClick={handleSend}
-          className="bg-[#e5a93b] hover:bg-[#f6bd4f] text-[#1c0f08] text-xs font-bold px-3 py-1.5 h-auto rounded-lg"
+          className="bg-[#e5a93b] hover:bg-[#f6bd4f] text-[#1c0f08] w-8 h-8 flex items-center justify-center rounded-lg transition-all"
+          title="Envoyer"
         >
-          Envoyer
-        </Button>
+          <Send className="w-3.5 h-3.5" />
+        </button>
       </div>
     </div>
   );

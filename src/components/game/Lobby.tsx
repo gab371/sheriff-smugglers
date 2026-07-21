@@ -174,6 +174,7 @@ export const Lobby: React.FC<LobbyProps> = ({
   return (
     <div className="w-full max-w-md mx-auto p-8 bg-[#2d1b10]/60 backdrop-blur-xl border border-[#523628]/60 rounded-3xl shadow-2xl relative overflow-hidden text-amber-50">
       <div className="text-center mb-8">
+        <span className="text-5xl inline-block mb-3 animate-bounce">🤠</span>
         <h1 className="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-amber-400 to-[#e5a93b] bg-clip-text text-transparent">
           SHERIFF & SMUGGLERS
         </h1>
