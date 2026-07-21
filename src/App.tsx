@@ -113,12 +113,12 @@ function App() {
         )}
       </main>
 
-      <footer className="max-w-7xl mx-auto w-full text-center text-[10px] text-amber-600/50 py-6 px-4 border-t border-[#523628]/20 relative z-10 flex justify-between items-center">
+      <footer className="max-w-7xl mx-auto w-full text-center text-[10px] text-amber-600/50 py-6 px-4 border-t border-[#523628]/20 flex justify-between items-center">
         <div>
           Sheriff & Smugglers - Réseau Privé Peer-to-Peer - Version 1.0.0
         </div>
         <a
-          href="https://github.com/gab371/Sherif-de-Nottingham"
+          href="https://github.com/gab371/sheriff-smugglers"
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-1.5 hover:text-[#e5a93b] transition-colors"

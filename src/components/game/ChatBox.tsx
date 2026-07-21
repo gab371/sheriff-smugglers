@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import type { ChatMessage } from "../../network/protocol";
-import { Button } from "../ui/button";
 import { Send } from "lucide-react";
 
 interface ChatBoxProps {
