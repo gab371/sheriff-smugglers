@@ -28,7 +28,12 @@ export default defineConfig(({ mode }) => {
         name: 'GameSheriff',
         formats: ['es'],
         fileName: () => 'index.js'
-      }
+      },
+      // The hub + each game's mount() load `./games/<key>/style.css`, so emit
+      // the extracted stylesheet as `style.css` (instead of `<package-name>.css`).
+      rollupOptions: {
+        output: { assetFileNames: 'style.css' },
+      },
     } : {
       outDir: 'dist'
     }
