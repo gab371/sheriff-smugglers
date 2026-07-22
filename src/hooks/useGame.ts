@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { usePeer } from "./usePeer";
 import { GameEngine } from "../core/gameEngine";
+import { sanitizeGameState } from "../network/protocol";
 import type { NetworkMessage } from "../network/protocol";
-import type { DeckTheme } from "../core/types";
+import type { GameState, DeckTheme } from "../core/types";
 
 interface UseGameOptions {
   externalPeerManager?: any;
@@ -33,6 +34,38 @@ export function useGame(options?: UseGameOptions) {
   const [localPlayerName, setLocalPlayerName] = useState<string>(options?.playerName || "");
   const [localPlayerAvatar, setLocalPlayerAvatar] = useState<string>(options?.playerAvatar || "🤠");
 
+  // Helper function to broadcast sanitized states to each player.
+  // Hides each player's private information (hand, contraband, bag contents)
+  // from the others — including from the host/Sheriff — to prevent cheating.
+  const broadcastSanitizedStates = useCallback((engineState: GameState, overridePeerId?: string) => {
+    const activePeerId = overridePeerId || myPeerId;
+    if (!activePeerId) return;
+
+    // Update the host's own displayed state with the host's sanitized view.
+    const hostSanitized = sanitizeGameState(engineState, activePeerId);
+    p2p.peerManager.onStateReceived?.(JSON.parse(JSON.stringify(hostSanitized)));
+
+    // Send each connected player their own sanitized view of the state.
+    engineState.players.forEach((p) => {
+      if (p.id === activePeerId) return;
+
+      let conn = peerManager.connections.get(p.id);
+      if (!conn) {
+        // Connection keys may be namespaced while player ids are raw; match loosely.
+        for (const [peerId, connection] of peerManager.connections.entries()) {
+          if (peerId.endsWith(p.id) || p.id.endsWith(peerId)) {
+            conn = connection;
+            break;
+          }
+        }
+      }
+      if (conn && conn.open) {
+        const clientSanitized = sanitizeGameState(engineState, p.id);
+        conn.send({ type: 'STATE_UPDATE', state: clientSanitized });
+      }
+    });
+  }, [myPeerId, peerManager, p2p.peerManager]);
+
   // Host Action Handler & Embedded Auto-Start
   useEffect(() => {
     if (!isHost) {
@@ -46,7 +79,8 @@ export function useGame(options?: UseGameOptions) {
 
     const engine = gameEngineRef.current;
 
-    // Auto start embedded game - deferred one tick to let usePeer register onStateReceived
+    // Embedded setup: populate players from the hub lobby but stay in LOBBY
+    // so the host can pick the deck theme before clicking "Lancer la Partie".
     if (options?.isEmbedded && options?.externalPeerManager && engine.state.phase === 'LOBBY') {
       setTimeout(() => {
         engine.state.players = [];
@@ -62,7 +96,8 @@ export function useGame(options?: UseGameOptions) {
           });
         }
 
-        engine.startGame();
+        // Do NOT auto-start: broadcast the LOBBY state so the saloon lobby
+        // (with the deck selector + "Lancer la Partie") shows for everyone.
         broadcastSanitizedStates(engine.state);
       }, 0);
     }
@@ -147,16 +182,14 @@ export function useGame(options?: UseGameOptions) {
             break;
         }
 
-        peerManager.broadcastState(engine.state);
-        peerManager.onStateReceived?.(JSON.parse(JSON.stringify(engine.state)));
+        broadcastSanitizedStates(engine.state);
       }
     };
 
     peerManager.onPeerStatusChange = (peerId: string, peerStatus: 'CONNECTED' | 'DISCONNECTED') => {
       if (peerStatus === 'DISCONNECTED') {
         engine.removePlayer(peerId);
-        peerManager.broadcastState(engine.state);
-        peerManager.onStateReceived?.(JSON.parse(JSON.stringify(engine.state)));
+        broadcastSanitizedStates(engine.state);
       }
     };
 
@@ -164,7 +197,7 @@ export function useGame(options?: UseGameOptions) {
       peerManager.hostActionHandler = null;
       peerManager.onPeerStatusChange = null;
     };
-  }, [isHost, myPeerId, peerManager, playSfx]);
+  }, [isHost, myPeerId, peerManager, playSfx, broadcastSanitizedStates]);
 
   // Client actions
   const hostRoom = useCallback(async (name: string, avatar: string) => {
@@ -174,9 +207,8 @@ export function useGame(options?: UseGameOptions) {
     const engine = new GameEngine();
     gameEngineRef.current = engine;
     engine.addPlayer(roomId, name, avatar, true);
-    peerManager.broadcastState(engine.state);
-    peerManager.onStateReceived?.(JSON.parse(JSON.stringify(engine.state)));
-  }, [hostGame, peerManager]);
+    broadcastSanitizedStates(engine.state, roomId);
+  }, [hostGame, broadcastSanitizedStates]);
 
   const joinRoom = useCallback(async (name: string, avatar: string, roomId: string) => {
     setLocalPlayerName(name);

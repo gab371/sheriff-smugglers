@@ -109,7 +109,7 @@ function App({ isEmbedded = false, externalPeerManager, playerName, playerAvatar
             onJoin={game.joinRoom}
             onToggleReady={game.toggleReady}
             onStartGame={game.startGame}
-            onDisconnect={game.disconnect}
+            onDisconnect={isEmbedded && onExit ? onExit : game.disconnect}
             deckTheme={game.gameState?.deckTheme}
             onChangeDeckTheme={game.changeDeckTheme}
           />
