@@ -4,6 +4,15 @@ import './index.css'
 import App from './App.tsx'
 
 export function mount(element: HTMLElement, options: { peerId: string; onExit?: () => void; externalPeerManager?: any }) {
+  const styleId = 'game-style-sheriff';
+  if (!document.getElementById(styleId)) {
+    const link = document.createElement('link');
+    link.id = styleId;
+    link.rel = 'stylesheet';
+    link.href = '/games/sheriff/style.css';
+    document.head.appendChild(link);
+  }
+
   const root = createRoot(element);
   root.render(
     <StrictMode>
