@@ -1,4 +1,5 @@
 import { useState } from "react";
+declare const __APP_VERSION__: string;
 import { useGame } from "./hooks/useGame";
 import { Lobby } from "./components/game/Lobby";
 import { GameBoard } from "./components/game/GameBoard";
@@ -131,7 +132,7 @@ function App({ isEmbedded = false, externalPeerManager, onExit }: AppProps) {
 
       <footer className="max-w-7xl mx-auto w-full text-center text-[10px] text-amber-600/50 py-6 px-4 border-t border-[#523628]/20 flex justify-between items-center">
         <div>
-          Sheriff & Smugglers - Réseau Privé Peer-to-Peer - Version v0.1.0
+          Sheriff & Smugglers - Réseau Privé Peer-to-Peer - Version v{__APP_VERSION__}
         </div>
         <a
           href="https://github.com/gab371/sheriff-smugglers"
