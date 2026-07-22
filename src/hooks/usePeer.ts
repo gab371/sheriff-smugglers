@@ -4,7 +4,11 @@ import type { GameState } from "../core/types";
 import type { ChatMessage } from "../network/protocol";
 import { soundManager } from "../core/soundFX";
 
-export function usePeer() {
+interface UsePeerOptions {
+  externalPeerManager?: any;
+}
+
+export function usePeer(options?: UsePeerOptions) {
   const peerManagerRef = useRef<PeerManager | null>(null);
   const [myPeerId, setMyPeerId] = useState<string | null>(null);
   const [hostPeerId, setHostPeerId] = useState<string | null>(null);
@@ -16,7 +20,7 @@ export function usePeer() {
   const [status, setStatus] = useState<'IDLE' | 'CONNECTING' | 'CONNECTED' | 'DISCONNECTED'>('IDLE');
 
   if (!peerManagerRef.current) {
-    peerManagerRef.current = new PeerManager();
+    peerManagerRef.current = options?.externalPeerManager || new PeerManager();
   }
 
   const peerManager = peerManagerRef.current;

@@ -4,8 +4,12 @@ import { GameEngine } from "../core/gameEngine";
 import type { NetworkMessage } from "../network/protocol";
 import type { DeckTheme } from "../core/types";
 
-export function useGame() {
-  const p2p = usePeer();
+interface UseGameOptions {
+  externalPeerManager?: any;
+}
+
+export function useGame(options?: UseGameOptions) {
+  const p2p = usePeer(options);
   const {
     isHost,
     myPeerId,

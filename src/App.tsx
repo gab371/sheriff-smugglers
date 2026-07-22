@@ -4,8 +4,14 @@ import { Lobby } from "./components/game/Lobby";
 import { GameBoard } from "./components/game/GameBoard";
 import { ShieldAlert, FileText, X } from "lucide-react";
 
-function App() {
-  const game = useGame();
+interface AppProps {
+  isEmbedded?: boolean;
+  externalPeerManager?: any;
+  onExit?: () => void;
+}
+
+function App({ isEmbedded = false, externalPeerManager, onExit }: AppProps) {
+  const game = useGame({ externalPeerManager });
   const [copied, setCopied] = useState(false);
   const [showRules, setShowRules] = useState(false);
 
@@ -76,7 +82,7 @@ function App() {
                 {copied ? "Copié !" : "Copier le code"}
               </button>
               <button
-                onClick={game.disconnect}
+                onClick={isEmbedded && onExit ? onExit : game.disconnect}
                 className="text-xs px-2.5 py-1.5 bg-red-950/20 hover:bg-red-900/20 text-red-400 border border-red-900/30 rounded-xl transition-all font-bold"
               >
                 Quitter
