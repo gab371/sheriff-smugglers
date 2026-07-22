@@ -8,11 +8,13 @@ import { ShieldAlert, FileText, X } from "lucide-react";
 interface AppProps {
   isEmbedded?: boolean;
   externalPeerManager?: any;
+  playerName?: string;
+  playerAvatar?: string;
   onExit?: () => void;
 }
 
-function App({ isEmbedded = false, externalPeerManager, onExit }: AppProps) {
-  const game = useGame({ externalPeerManager });
+function App({ isEmbedded = false, externalPeerManager, playerName, playerAvatar, onExit }: AppProps) {
+  const game = useGame({ externalPeerManager, isEmbedded, playerName, playerAvatar });
   const [copied, setCopied] = useState(false);
   const [showRules, setShowRules] = useState(false);
 

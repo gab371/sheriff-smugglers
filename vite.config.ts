@@ -18,6 +18,8 @@ export default defineConfig(({ mode }) => {
     },
     define: {
       __APP_VERSION__: JSON.stringify(pkg.version),
+      'process.env.NODE_ENV': JSON.stringify('production'),
+      'process.env': '{}',
     },
     build: isLib ? {
       outDir: 'dist',
