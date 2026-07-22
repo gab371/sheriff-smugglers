@@ -26,15 +26,6 @@ export default defineConfig(({ mode }) => {
         name: 'GameSheriff',
         formats: ['es'],
         fileName: () => 'index.js'
-      },
-      rollupOptions: {
-        external: ['react', 'react-dom'],
-        output: {
-          globals: {
-            react: 'React',
-            'react-dom': 'ReactDOM'
-          }
-        }
       }
     } : {
       outDir: 'dist'
