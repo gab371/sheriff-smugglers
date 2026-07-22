@@ -9,7 +9,7 @@ export function mount(element: HTMLElement, options: { peerId: string; onExit?: 
     const link = document.createElement('link');
     link.id = styleId;
     link.rel = 'stylesheet';
-    link.href = '/games/sheriff/style.css';
+    link.href = './games/sheriff/style.css';
     document.head.appendChild(link);
   }
 
