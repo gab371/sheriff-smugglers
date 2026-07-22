@@ -23,7 +23,7 @@ export function usePeer(options?: UsePeerOptions) {
     peerManagerRef.current = options?.externalPeerManager || new PeerManager();
   }
 
-  const peerManager = peerManagerRef.current;
+  const peerManager = peerManagerRef.current as PeerManager;
 
   // Sync callbacks
   useEffect(() => {
@@ -133,6 +133,6 @@ export function usePeer(options?: UsePeerOptions) {
     sendChat,
     playSfx,
     disconnect,
-    peerManager,
+    peerManager: peerManager as PeerManager,
   };
 }
