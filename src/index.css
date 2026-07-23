@@ -1,3 +1,8 @@
+/* Game fonts: declared here (not only in index.html) so they travel with the
+   built `style.css` and load correctly when the game is embedded in the P2Play Hub,
+   which only injects `style.css` + `index.js` (not the game's `index.html`). */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800&family=Rye&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

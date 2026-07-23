@@ -40,7 +40,7 @@ function App({ isEmbedded = false, externalPeerManager, playerName, playerAvatar
         <div className="flex items-center gap-3">
           <ShieldAlert className="w-6 h-6 text-[#e5a93b] animate-pulse" />
           <div>
-            <h1 className="text-xl font-black bg-gradient-to-r from-amber-400 to-[#e5a93b] bg-clip-text text-transparent tracking-tight">
+            <h1 className="text-xl font-black bg-gradient-to-r from-amber-400 to-amber-300 bg-clip-text text-transparent tracking-tight whitespace-nowrap shrink-0">
               SHERIFF & SMUGGLERS
             </h1>
             <span className="text-[9px] uppercase tracking-widest text-amber-500/60 font-semibold block leading-none mt-0.5">
