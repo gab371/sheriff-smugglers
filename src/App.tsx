@@ -217,6 +217,49 @@ function App({ isEmbedded = false, externalPeerManager, playerName, playerAvatar
                 </ul>
               </section>
 
+              <section>
+                <h3 className="font-bold text-[#e5a93b] font-serif uppercase tracking-wide text-xs mb-1">Quand gagne-t-on de l'or ?</h3>
+                <p className="mb-2">L'or ne change de mains <strong>que pendant la phase d'Inspection</strong> — jamais au marché, au chargement du sac ou à la déclaration. Trois cas :</p>
+                <ul className="list-disc list-inside pl-2 space-y-1.5">
+                  <li>
+                    <strong className="text-emerald-400">Sac honnête inspecté :</strong> le Shérif paie au marchand la somme des pénalités (<em>fines</em>) de chaque carte du sac. Le marchand encaisse cet or immédiatement.
+                  </li>
+                  <li>
+                    <strong className="text-red-400">Sac menteur inspecté :</strong> le marchand paie au Shérif la pénalité de chaque carte saisie (non déclarée ou contrebande).
+                  </li>
+                  <li>
+                    <strong className="text-amber-200">Pot-de-vin accepté (sac laissé passer) :</strong> le marchand paie au Shérif l'or proposé. Si le Shérif inspecte à la place, le pot-de-vin est refusé et le marchand garde son or.
+                  </li>
+                </ul>
+                <p className="mt-2 text-xs text-amber-300/80">
+                  ⚠️ Un sac simplement « laissé passer » sans pot-de-vin ne rapporte aucun or sur le moment : les marchandises vont sur l'étal et ne valent des points qu'en fin de partie.
+                </p>
+              </section>
+
+              <section>
+                <h3 className="font-bold text-[#e5a93b] font-serif uppercase tracking-wide text-xs mb-1">Bonus de majorité — Barons &amp; Trafiquants</h3>
+                <p className="mb-2">En fin de partie, pour chaque type de marchandise légale, le joueur qui en a le plus sur son étal devient <strong>Baron</strong> ; le deuxième devient <strong>Trafiquant</strong>. En cas d'égalité à la première place, les bonus Baron + Trafiquant sont additionnés et partagés entre les ex æquo (et aucun Trafiquant n'est nommé).</p>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs border border-[#523628]/60 rounded-xl overflow-hidden">
+                    <thead className="bg-[#1c0f08] text-[#e5a93b]">
+                      <tr>
+                        <th className="text-left p-2 font-serif">Marchandise légale</th>
+                        <th className="text-right p-2 font-serif">Baron (1er)</th>
+                        <th className="text-right p-2 font-serif">Trafiquant (2e)</th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-amber-100/90">
+                      <tr className="border-t border-[#523628]/40"><td className="p-2">Valeur 2 (ex. Maïs 🌽)</td><td className="text-right p-2">+20 pts</td><td className="text-right p-2">+10 pts</td></tr>
+                      <tr className="border-t border-[#523628]/40"><td className="p-2">Valeur 3 (ex. Pommes de terre 🥔, Haricots 🫘)</td><td className="text-right p-2">+15 pts</td><td className="text-right p-2">+10 pts</td></tr>
+                      <tr className="border-t border-[#523628]/40"><td className="p-2">Valeur 4 (ex. Coton 🌾)</td><td className="text-right p-2">+10 pts</td><td className="text-right p-2">+5 pts</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p className="mt-2 text-xs text-amber-300/80">
+                  La contrebande, elle, ne donne droit à aucun titre de majorité : elle rapporte uniquement la valeur inscrite sur chaque carte.
+                </p>
+              </section>
+
               <section className="bg-[#1c0f08] border border-[#523628]/60 p-3 rounded-2xl">
                 <h4 className="font-serif font-bold text-[#e5a93b] text-xs uppercase mb-1">💡 Astuce</h4>
                 <p className="text-xs text-amber-300/80">

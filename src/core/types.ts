@@ -10,8 +10,8 @@ export interface Card {
   value: number;
   fine: number;
   deckCount: number;
-  kingBonus?: number;
-  queenBonus?: number;
+  baronBonus?: number;
+  trafiquantBonus?: number;
 }
 
 export interface Player {
@@ -76,8 +76,8 @@ export interface WinnerScore {
   contrabandValue: number;
   contrabandDetails: string[];
   counts: { [goodId: string]: number };
-  kingBonuses: number;
-  queenBonuses: number;
+  baronBonuses: number;
+  trafiquantBonuses: number;
   bonusList: string[];
   totalScore: number;
 }

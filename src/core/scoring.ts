@@ -43,8 +43,8 @@ export function calculateFinalScores(players: Player[], theme: DeckTheme = 'WEST
       contrabandValue,
       contrabandDetails,
       counts,
-      kingBonuses: 0,
-      queenBonuses: 0,
+      baronBonuses: 0,
+      trafiquantBonuses: 0,
       bonusList: [],
       totalScore: 0,
     };
@@ -56,12 +56,12 @@ export function calculateFinalScores(players: Player[], theme: DeckTheme = 'WEST
 
     if (sorted[0] && sorted[0].counts[type] > 0) {
       const highestCount = sorted[0].counts[type];
-      const kings = sorted.filter((s) => s.counts[type] === highestCount);
+      const barons = sorted.filter((s) => s.counts[type] === highestCount);
 
-      if (kings.length === 1) {
-        kings[0].kingBonuses += cardDef.kingBonus || 0;
-        kings[0].bonusList.push(
-          `Roi ${cardDef.name} ${cardDef.icon} (+${cardDef.kingBonus} pts)`
+      if (barons.length === 1) {
+        barons[0].baronBonuses += cardDef.baronBonus || 0;
+        barons[0].bonusList.push(
+          `Baron ${cardDef.name} ${cardDef.icon} (+${cardDef.baronBonus} pts)`
         );
 
         const remaining = sorted.filter(
@@ -69,23 +69,23 @@ export function calculateFinalScores(players: Player[], theme: DeckTheme = 'WEST
         );
         if (remaining.length > 0) {
           const secondHighest = remaining[0].counts[type];
-          const queens = remaining.filter((s) => s.counts[type] === secondHighest);
-          const queenBonusSplit = Math.floor((cardDef.queenBonus || 0) / queens.length);
-          const queenTitle = queens.length > 1 ? 'Égalité Reine' : 'Reine';
-          queens.forEach((q) => {
-            q.queenBonuses += queenBonusSplit;
+          const trafiquants = remaining.filter((s) => s.counts[type] === secondHighest);
+          const trafiquantBonusSplit = Math.floor((cardDef.trafiquantBonus || 0) / trafiquants.length);
+          const trafiquantTitle = trafiquants.length > 1 ? 'Égalité Trafiquant' : 'Trafiquant';
+          trafiquants.forEach((q) => {
+            q.trafiquantBonuses += trafiquantBonusSplit;
             q.bonusList.push(
-              `${queenTitle} ${cardDef.name} ${cardDef.icon} (+${queenBonusSplit} pts)`
+              `${trafiquantTitle} ${cardDef.name} ${cardDef.icon} (+${trafiquantBonusSplit} pts)`
             );
           });
         }
       } else {
-        const totalBonus = (cardDef.kingBonus || 0) + (cardDef.queenBonus || 0);
-        const splitBonus = Math.floor(totalBonus / kings.length);
-        kings.forEach((k) => {
-          k.kingBonuses += splitBonus;
+        const totalBonus = (cardDef.baronBonus || 0) + (cardDef.trafiquantBonus || 0);
+        const splitBonus = Math.floor(totalBonus / barons.length);
+        barons.forEach((k) => {
+          k.baronBonuses += splitBonus;
           k.bonusList.push(
-            `Égalité Roi ${cardDef.name} ${cardDef.icon} (+${splitBonus} pts)`
+            `Égalité Baron ${cardDef.name} ${cardDef.icon} (+${splitBonus} pts)`
           );
         });
       }
@@ -94,7 +94,7 @@ export function calculateFinalScores(players: Player[], theme: DeckTheme = 'WEST
 
   scores.forEach((s) => {
     s.totalScore =
-      s.coins + s.standValue + s.contrabandValue + s.kingBonuses + s.queenBonuses;
+      s.coins + s.standValue + s.contrabandValue + s.baronBonuses + s.trafiquantBonuses;
   });
 
   scores.sort((a, b) => b.totalScore - a.totalScore);

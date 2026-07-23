@@ -132,7 +132,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
                       <span>Bourse : {score.coins} 🪙</span>
                       <span>Étal Légal : {score.standValue} pts</span>
                       <span>Contrebande : {score.contrabandValue} pts</span>
-                      <span>Bonis Rois/Reines : {score.kingBonuses + score.queenBonuses} pts</span>
+                      <span>Bonus Barons/Trafiquants : {score.baronBonuses + score.trafiquantBonuses} pts</span>
                     </div>
                   </div>
                 </div>

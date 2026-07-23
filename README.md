@@ -22,7 +22,7 @@ Jouez directement sur votre navigateur sans aucune installation :
 - **Thème Western immersif** : Graphismes stylisés saloon, effets sonores Web Audio (bruit de pièces d'or, fermeture des sacs, coups de marteau du Shérif).
 - **Bluff & Négociation** : Modals interactifs pour sceller votre sac en secret, déclarer votre cargaison, offrir des pots-de-vin en pièces d'or ou faire des promesses au Shérif.
 - **Journal d'activité & Clavardage** : Discussion instantanée P2P intégrée et journal d'activité pour suivre en temps réel les inspections, les amendes et les passages du Shérif.
-- **Comptabilisation Automatisée** : Calcul automatique des scores finaux en fin de partie, incluant les bonus de majorité (Rois et Reines des marchandises).
+- **Comptabilisation Automatisée** : Calcul automatique des scores finaux en fin de partie, incluant les bonus de majorité (Barons et Trafiquants des marchandises).
 - **Architecture Extensible** : Conçu pour supporter facilement d'autres decks thématiques à l'avenir (decks futuristes, médiévaux, pirates, etc.).
 
 ---
