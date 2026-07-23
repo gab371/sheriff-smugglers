@@ -31,6 +31,7 @@ export function useGame(options?: UseGameOptions) {
   } = p2p;
 
   const gameEngineRef = useRef<GameEngine | null>(null);
+  const victoryPlayedRef = useRef<boolean>(false);
   const [localPlayerName, setLocalPlayerName] = useState<string>(options?.playerName || "");
   const [localPlayerAvatar, setLocalPlayerAvatar] = useState<string>(options?.playerAvatar || "🤠");
 
@@ -170,6 +171,8 @@ export function useGame(options?: UseGameOptions) {
           case 'SHERIFF_INSPECT':
             if (engine.getSheriff().id === playerId) {
               engine.sheriffInspectBag(payload.merchantId);
+              // The Sheriff "looks into the bag": bag snap then gavel.
+              playSfx('bagsnap');
               playSfx('gavel');
             }
             break;
@@ -183,6 +186,14 @@ export function useGame(options?: UseGameOptions) {
         }
 
         broadcastSanitizedStates(engine.state);
+
+        // Play a victory fanfare once when the game ends (broadcast to all peers).
+        if (engine.state.phase === 'GAME_OVER' && !victoryPlayedRef.current) {
+          victoryPlayedRef.current = true;
+          playSfx('victory');
+        } else if (engine.state.phase !== 'GAME_OVER') {
+          victoryPlayedRef.current = false;
+        }
       }
     };
 

@@ -43,6 +43,11 @@ export function usePeer(options?: UsePeerOptions) {
       if (sfx === 'bagsnap') soundManager.playBagSnap();
       if (sfx === 'gavel') soundManager.playGavel();
       if (sfx === 'victory') soundManager.playVictory();
+      if (sfx === 'defeat') soundManager.playDefeat();
+      if (sfx === 'click') soundManager.playClick();
+      if (sfx === 'sword') soundManager.playSword();
+      if (sfx === 'skullthud') soundManager.playSkullThud();
+      if (sfx === 'bid') soundManager.playBid();
       if (sfx === 'ping') soundManager.playPing();
     };
 

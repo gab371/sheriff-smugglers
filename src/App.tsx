@@ -4,6 +4,7 @@ import { useGame } from "./hooks/useGame";
 import { Lobby } from "./components/game/Lobby";
 import { GameBoard } from "./components/game/GameBoard";
 import { ShieldAlert, FileText, X } from "lucide-react";
+import { SoundToggle } from "./components/ui/SoundToggle";
 
 interface AppProps {
   isEmbedded?: boolean;
@@ -75,6 +76,8 @@ function App({ isEmbedded = false, externalPeerManager, playerName, playerAvatar
             <FileText className="w-4 h-4" />
             <span>Règles</span>
           </button>
+
+          <SoundToggle className="bg-[#3b251b] hover:bg-[#523628] text-amber-300 hover:text-amber-100 border-[#523628]/60" />
 
           {game.gameState && game.gameState.phase !== 'LOBBY' && (
             <div className="flex items-center gap-2 border-l border-[#523628]/40 pl-3">
