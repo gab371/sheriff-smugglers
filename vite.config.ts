@@ -5,6 +5,14 @@ import { readFileSync } from "fs"
 
 const pkg = JSON.parse(readFileSync(new URL("./package.json", import.meta.url), "utf8"));
 
+const reactAliases = {
+  react: path.resolve(__dirname, "node_modules/react"),
+  "react-dom": path.resolve(__dirname, "node_modules/react-dom"),
+  "react-dom/client": path.resolve(__dirname, "node_modules/react-dom/client"),
+  "react/jsx-runtime": path.resolve(__dirname, "node_modules/react/jsx-runtime.js"),
+  "react/jsx-dev-runtime": path.resolve(__dirname, "node_modules/react/jsx-dev-runtime.js"),
+}
+
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
   const isLib = mode === 'lib';
@@ -12,8 +20,10 @@ export default defineConfig(({ mode }) => {
     base: './',
     plugins: [react()],
     resolve: {
+      dedupe: ["react", "react-dom"],
       alias: {
         "@": path.resolve(__dirname, "./src"),
+        ...(isLib ? reactAliases : {}),
       },
     },
     define: {
@@ -29,8 +39,6 @@ export default defineConfig(({ mode }) => {
         formats: ['es'],
         fileName: () => 'index.js'
       },
-      // The hub + each game's mount() load `./games/<key>/style.css`, so emit
-      // the extracted stylesheet as `style.css` (instead of `<package-name>.css`).
       rollupOptions: {
         output: { assetFileNames: 'style.css' },
       },

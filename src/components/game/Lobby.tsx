@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import type { Player } from "../../core/types";
 import { Button } from "../ui/button";
+import { SpectatorRolePanel } from "./SpectatorRolePanel";
 
 interface LobbyProps {
   myPeerId: string | null;
@@ -8,12 +9,16 @@ interface LobbyProps {
   status: 'IDLE' | 'CONNECTING' | 'CONNECTED' | 'DISCONNECTED';
   error: string | null;
   players: Player[];
+  spectators?: Player[];
+  spectatorLocks?: { [peerId: string]: boolean };
   isHost: boolean;
   onHost: (name: string, avatar: string) => void;
   onJoin: (name: string, avatar: string, roomId: string) => void;
   onToggleReady: (ready: boolean) => void;
   onStartGame: () => void;
   onDisconnect: () => void;
+  onSetRole?: (peerId: string, role: 'player' | 'spectator') => void;
+  onLockSpectator?: (peerId: string, locked: boolean) => void;
   deckTheme?: 'WESTERN' | 'MEDIEVAL' | 'MODERN';
   onChangeDeckTheme?: (theme: 'WESTERN' | 'MEDIEVAL' | 'MODERN') => void;
 }
@@ -26,12 +31,16 @@ export const Lobby: React.FC<LobbyProps> = ({
   status,
   error,
   players,
+  spectators = [],
+  spectatorLocks = {},
   isHost,
   onHost,
   onJoin,
   onToggleReady,
   onStartGame,
   onDisconnect,
+  onSetRole,
+  onLockSpectator,
   deckTheme = 'WESTERN',
   onChangeDeckTheme,
 }) => {
@@ -100,8 +109,18 @@ export const Lobby: React.FC<LobbyProps> = ({
           )}
         </div>
 
+        <SpectatorRolePanel
+          players={players}
+          spectators={spectators}
+          spectatorLocks={spectatorLocks}
+          myPeerId={myPeerId}
+          isHost={isHost}
+          onSetRole={onSetRole || (() => {})}
+          onLockSpectator={onLockSpectator || (() => {})}
+        />
+
         <div className="space-y-4 mb-8">
-          <h2 className="text-lg font-bold text-amber-100">Marchands connectés ({players.length})</h2>
+          <h2 className="text-lg font-bold text-amber-100">Marchands connectés ({players.length}){spectators.length > 0 && <span className="text-sky-300/80 text-sm"> · 👁 {spectators.length} spectateur(s)</span>}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {players.map((p) => (
               <div

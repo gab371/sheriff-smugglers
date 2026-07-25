@@ -128,3 +128,42 @@ export function sanitizeGameState(state: GameState, targetPlayerId: string): Gam
     marketPlayerStates: sanitizedMarket,
   };
 }
+
+/**
+ * Sanitizes the game state for a spectator.
+ *
+ * Spectators see the public board (stands, declarations, discard piles, logs,
+ * scores) but NEVER any private information: no player's hand, contraband or
+ * bag contents. Everyone is treated as an "opponent" from the spectator's view.
+ */
+export function sanitizeGameStateForSpectator(state: GameState): GameState {
+  const sanitizedPlayers: Player[] = state.players.map((player): Player => ({
+    ...player,
+    hand: player.hand.map((_, i) => faceDownCard(`hidden_hand_${player.id}_${i}`)),
+    contraband: player.contraband.map((_, i) => faceDownCard(`hidden_contraband_${player.id}_${i}`)),
+    stand: Object.fromEntries(
+      Object.entries(player.stand).map(([k, v]) => [k, v.map((c) => ({ ...c }))])
+    ) as Player['stand'],
+  }));
+
+  const sanitizedBags: GameState['bags'] = {};
+  Object.entries(state.bags).forEach(([pid, bag]) => {
+    sanitizedBags[pid] = {
+      ...bag,
+      cards: bag.cards.map((_, i) => faceDownCard(`hidden_bag_${pid}_${i}`)),
+    };
+  });
+
+  const sanitizedMarket: GameState['marketPlayerStates'] = {};
+  Object.entries(state.marketPlayerStates).forEach(([pid, mps]) => {
+    sanitizedMarket[pid] = { ...mps, pendingDiscards: undefined };
+  });
+
+  return {
+    ...state,
+    drawDeck: state.drawDeck.map((_, i) => faceDownCard(`hidden_deck_${i}`)),
+    players: sanitizedPlayers,
+    bags: sanitizedBags,
+    marketPlayerStates: sanitizedMarket,
+  };
+}

@@ -14,11 +14,14 @@ export interface Card {
   trafiquantBonus?: number;
 }
 
+export type PlayerRole = 'player' | 'spectator';
+
 export interface Player {
   id: string;
   name: string;
   avatar: string;
   isHost: boolean;
+  role: PlayerRole;
   gold: number;
   hand: Card[];
   stand: { [cardId: string]: Card[] };
@@ -99,4 +102,6 @@ export interface GameState {
   logs: GameLog[];
   winnerScores: WinnerScore[] | null;
   deckTheme: DeckTheme;
+  spectators: Player[];
+  spectatorLocks: { [peerId: string]: boolean };
 }

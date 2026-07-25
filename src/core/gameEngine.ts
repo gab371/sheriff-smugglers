@@ -1,6 +1,7 @@
 import type { GameState, Player, Card, GameLog, DeckTheme } from "./types";
 import { CARD_THEMES, createDeck, shuffleDeck, getCardDefinition } from "./cards";
 import { calculateFinalScores } from "./scoring";
+import { canChangeRole, spectatorConfigFromIds } from "p2play-core/spectator";
 
 export interface GameEngineOptions {
   roundsPerPlayer?: number;
@@ -31,6 +32,8 @@ export class GameEngine {
       logs: [],
       winnerScores: null,
       deckTheme: 'WESTERN',
+      spectators: [],
+      spectatorLocks: {},
     };
   }
 
@@ -58,6 +61,7 @@ export class GameEngine {
       name,
       avatar: avatar || '🤠',
       isHost,
+      role: 'player',
       gold: 50,
       hand: [],
       stand: {},
@@ -67,6 +71,82 @@ export class GameEngine {
 
     this.addLog(`${name} a rejoint le saloon !`, 'system');
     return true;
+  }
+
+  public addSpectator(id: string, name: string, avatar?: string): boolean {
+    const existing = this.state.players.find((p) => p.id === id) || this.state.spectators.find((s) => s.id === id);
+    if (existing) return false;
+
+    this.state.spectators.push({
+      id,
+      name,
+      avatar: avatar || '🤠',
+      isHost: false,
+      role: 'spectator',
+      gold: 0,
+      hand: [],
+      stand: {},
+      contraband: [],
+      isReady: true,
+    });
+
+    this.addLog(`${name} rejoint en tant que spectateur 👁`, 'system');
+    return true;
+  }
+
+  public setPlayerRole(
+    id: string,
+    role: 'player' | 'spectator',
+    requester?: { requesterPeerId: string; requesterIsHost: boolean },
+  ): boolean {
+    if (this.state.phase !== 'LOBBY') return false;
+    const config = spectatorConfigFromIds(
+      this.state.spectators.map((s) => s.id),
+      this.state.spectatorLocks,
+    );
+    if (!canChangeRole(id, config, {
+      requesterPeerId: requester?.requesterPeerId ?? (this.state.players.find((p) => p.isHost)?.id || ''),
+      requesterIsHost: requester?.requesterIsHost ?? true,
+      nextRole: role,
+    })) return false;
+
+    if (role === 'spectator') {
+      const p = this.state.players.find((pl) => pl.id === id);
+      if (!p) return false;
+      if (p.isHost) return false; // host cannot be demoted
+      p.role = 'spectator';
+      p.isReady = true;
+      this.state.players = this.state.players.filter((pl) => pl.id !== id);
+      this.state.spectators.push(p);
+      this.addLog(`${p.name} est maintenant spectateur 👁`, 'system');
+    } else {
+      const s = this.state.spectators.find((sp) => sp.id === id);
+      if (!s) return false;
+      s.role = 'player';
+      s.isReady = false;
+      s.gold = 50;
+      this.state.spectators = this.state.spectators.filter((sp) => sp.id !== id);
+      this.state.players.push(s);
+      this.addLog(`${s.name} rejoint les marchands !`, 'system');
+    }
+    return true;
+  }
+
+  public setSpectatorLock(peerId: string, locked: boolean): void {
+    if (locked) {
+      const asPlayer = this.state.players.find((p) => p.id === peerId);
+      if (asPlayer && !asPlayer.isHost) {
+        this.setPlayerRole(peerId, 'spectator', {
+          requesterPeerId: this.state.players.find((p) => p.isHost)?.id || peerId,
+          requesterIsHost: true,
+        });
+      }
+    }
+    this.state.spectatorLocks[peerId] = locked;
+  }
+
+  public isLocked(peerId: string): boolean {
+    return !!this.state.spectatorLocks[peerId];
   }
 
   public removePlayer(id: string): void {
@@ -79,6 +159,13 @@ export class GameEngine {
         this.state.phase = 'LOBBY';
         this.addLog(`Pas assez de joueurs. Retour au saloon.`, 'warning');
       }
+      return;
+    }
+    const sIndex = this.state.spectators.findIndex((s) => s.id === id);
+    if (sIndex !== -1) {
+      const s = this.state.spectators[sIndex];
+      this.state.spectators.splice(sIndex, 1);
+      this.addLog(`${s.name} (spectateur) s'est déconnecté.`, 'warning');
     }
   }
 
