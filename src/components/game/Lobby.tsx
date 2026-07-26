@@ -1,7 +1,9 @@
 import React, { useState } from "react";
-import type { Player } from "../../core/types";
+import type { Player, DeckTheme } from "../../core/types";
 import { Button } from "../ui/button";
 import { SpectatorRolePanel } from "./SpectatorRolePanel";
+import { copyRoomUrlToClipboard } from "p2play-core/url";
+import { P2PlayLobby } from "p2play-core";
 
 interface LobbyProps {
   myPeerId: string | null;
@@ -19,8 +21,8 @@ interface LobbyProps {
   onDisconnect: () => void;
   onSetRole?: (peerId: string, role: 'player' | 'spectator') => void;
   onLockSpectator?: (peerId: string, locked: boolean) => void;
-  deckTheme?: 'WESTERN' | 'MEDIEVAL' | 'MODERN';
-  onChangeDeckTheme?: (theme: 'WESTERN' | 'MEDIEVAL' | 'MODERN') => void;
+  deckTheme?: DeckTheme;
+  onChangeDeckTheme?: (theme: DeckTheme) => void;
 }
 
 const AVATARS = ["🤠", "👩‍🌾", "🧙‍♂️", "👨‍🍳", "👰‍♀️", "🤵‍♂️", "🌵", "🐎"];
@@ -44,9 +46,6 @@ export const Lobby: React.FC<LobbyProps> = ({
   deckTheme = 'WESTERN',
   onChangeDeckTheme,
 }) => {
-  const [name, setName] = useState(`Marchand_${Math.floor(Math.random() * 1000)}`);
-  const [avatar, setAvatar] = useState("🤠");
-  const [roomIdInput, setRoomIdInput] = useState("");
   const [copied, setCopied] = useState(false);
 
   const localPlayer = players.find((p) => p.id === myPeerId);
@@ -54,9 +53,11 @@ export const Lobby: React.FC<LobbyProps> = ({
 
   const handleCopy = () => {
     if (hostPeerId) {
-      navigator.clipboard.writeText(hostPeerId).then(() => {
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
+      copyRoomUrlToClipboard(hostPeerId).then((success: boolean) => {
+        if (success) {
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+        }
       });
     }
   };
@@ -64,116 +65,147 @@ export const Lobby: React.FC<LobbyProps> = ({
   if (status === 'CONNECTED' && myPeerId) {
     return (
       <div className="w-full max-w-2xl mx-auto p-6 sm:p-8 bg-[#2d1b10]/60 backdrop-blur-xl border border-[#523628]/60 rounded-3xl shadow-2xl relative overflow-hidden text-amber-50">
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
-          <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-amber-400 to-amber-300 bg-clip-text text-transparent">
-              Saloon : {hostPeerId}
-            </h1>
-            <button
+        <div className="text-center mb-6">
+          <span className="text-4xl inline-block mb-2">🤠</span>
+          <h2 className="text-2xl font-black tracking-tight text-amber-400">Saloon des Marchands</h2>
+          <p className="text-xs text-amber-500/70 font-medium">Attente des joueurs pour lancer le marché</p>
+        </div>
+
+        {hostPeerId && (
+          <div className="mb-6 p-4 bg-[#1c0f08] border border-[#523628]/60 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
+            <div className="flex items-center gap-2 text-amber-200">
+              <span className="text-amber-500 font-bold">Code du Saloon:</span>
+              <code className="font-mono bg-[#2d1b10] px-3 py-1 rounded-xl border border-[#523628]/40 font-bold text-amber-300 tracking-wider">
+                {hostPeerId}
+              </code>
+            </div>
+            <Button
               onClick={handleCopy}
-              className="px-2.5 py-1 bg-[#3b251b] hover:bg-[#523628] text-amber-200 rounded-xl text-xs font-bold transition-all flex items-center gap-1 border border-[#523628]/60"
-              title="Copier le code"
+              className="bg-[#3b251b] hover:bg-[#523628] text-amber-300 border border-[#523628]/60 text-xs px-4 py-2 rounded-xl transition-all w-full sm:w-auto"
             >
-              {copied ? "Copié !" : "Copier"}
-            </button>
+              {copied ? "✓ Lien copié !" : "📋 Copier le lien"}
+            </Button>
           </div>
-          <span className="px-3 py-1 bg-[#1c0f08] border border-[#523628]/60 rounded-full text-xs text-amber-400/80 font-mono">
-            {isHost ? "SHÉRIF / HÔTE" : "MARCHAND"}
-          </span>
-        </div>
-        <p className="text-amber-300/60 text-sm mb-6">Partagez ce code avec d'autres marchands pour les inviter au saloon.</p>
+        )}
 
-        {/* SÉLECTEUR DE THEME DE DECK */}
-        <div className="bg-[#1c0f08] border border-[#523628]/45 rounded-2xl p-4 mb-6 flex flex-col gap-2">
-          <div className="text-xs text-amber-500 font-bold uppercase tracking-widest">Thème du Deck</div>
-          {isHost ? (
-            <div className="grid grid-cols-3 gap-2 mt-1">
-              {(['WESTERN', 'MEDIEVAL', 'MODERN'] as const).map((t) => (
-                <button
-                  key={t}
-                  onClick={() => onChangeDeckTheme?.(t)}
-                  className={`text-xs py-2 px-1 rounded-xl border-2 font-bold transition-all ${
-                    deckTheme === t
-                      ? "bg-[#e5a93b] text-[#1c0f08] border-transparent"
-                      : "bg-[#2d1b10] border-[#523628]/60 text-amber-200 hover:bg-[#3b251b]"
-                  }`}
-                >
-                  {t === 'WESTERN' ? '🤠 Western' : t === 'MEDIEVAL' ? '🏰 Médiéval' : '🏙️ Moderne'}
-                </button>
-              ))}
-            </div>
-          ) : (
-            <div className="text-amber-200 font-semibold bg-[#2d1b10] p-2.5 rounded-xl border border-[#523628]/60 text-center text-sm">
-              Actif : {deckTheme === 'WESTERN' ? '🤠 Western' : deckTheme === 'MEDIEVAL' ? '🏰 Médiéval' : '🏙️ Moderne'}
-            </div>
-          )}
-        </div>
-
-        <SpectatorRolePanel
-          players={players}
-          spectators={spectators}
-          spectatorLocks={spectatorLocks}
-          myPeerId={myPeerId}
-          isHost={isHost}
-          onSetRole={onSetRole || (() => {})}
-          onLockSpectator={onLockSpectator || (() => {})}
-        />
-
-        <div className="space-y-4 mb-8">
-          <h2 className="text-lg font-bold text-amber-100">Marchands connectés ({players.length}){spectators.length > 0 && <span className="text-sky-300/80 text-sm"> · 👁 {spectators.length} spectateur(s)</span>}</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {players.map((p) => (
-              <div
-                key={p.id}
-                className="flex items-center justify-between p-3 rounded-2xl bg-[#1c0f08]/40 border border-[#523628]/40"
+        {isHost && onChangeDeckTheme && (
+          <div className="mb-6 p-4 bg-[#1c0f08] border border-[#523628]/60 rounded-2xl flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-amber-400">Thème du paquet :</span>
+            <div className="flex bg-[#2d1b10] p-1 rounded-xl border border-[#523628]/40 text-xs">
+              <button
+                type="button"
+                onClick={() => onChangeDeckTheme('WESTERN')}
+                className={`px-3 py-1 rounded-lg font-bold transition-all ${
+                  deckTheme === 'WESTERN'
+                    ? "bg-[#e5a93b] text-[#1c0f08] shadow"
+                    : "text-amber-400/60 hover:text-amber-200"
+                }`}
               >
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">{p.avatar}</span>
-                  <div>
-                    <span className="font-semibold text-amber-100">
-                      {p.name} {p.id === myPeerId ? ' (Vous)' : ''}
+                🤠 Far West
+              </button>
+              <button
+                type="button"
+                onClick={() => onChangeDeckTheme('MEDIEVAL')}
+                className={`px-3 py-1 rounded-lg font-bold transition-all ${
+                  deckTheme === 'MEDIEVAL'
+                    ? "bg-[#e5a93b] text-[#1c0f08] shadow"
+                    : "text-amber-400/60 hover:text-amber-200"
+                }`}
+              >
+                🏰 Médiéval
+              </button>
+              <button
+                type="button"
+                onClick={() => onChangeDeckTheme('MODERN')}
+                className={`px-3 py-1 rounded-lg font-bold transition-all ${
+                  deckTheme === 'MODERN'
+                    ? "bg-[#e5a93b] text-[#1c0f08] shadow"
+                    : "text-amber-400/60 hover:text-amber-200"
+                }`}
+              >
+                🌆 Moderne
+              </button>
+            </div>
+          </div>
+        )}
+
+        <div className="space-y-3 mb-6">
+          <h3 className="text-xs uppercase tracking-wider font-bold text-amber-500/80 px-1">
+            Marchands à la table ({players.length})
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {players.map((player) => (
+              <div
+                key={player.id}
+                className="p-3 bg-[#1c0f08] border border-[#523628]/40 rounded-2xl flex items-center justify-between gap-3"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <span className="text-2xl p-1 bg-[#2d1b10] rounded-xl border border-[#523628]/30 flex-shrink-0">
+                    {player.avatar}
+                  </span>
+                  <div className="truncate">
+                    <span className="font-bold text-sm text-amber-100 block truncate">
+                      {player.name}
                     </span>
+                    {player.id === hostPeerId && (
+                      <span className="text-[10px] text-[#e5a93b] font-semibold uppercase tracking-wider block">
+                        👑 Hôte du Saloon
+                      </span>
+                    )}
                   </div>
                 </div>
-                <div>
-                  {p.isHost ? (
-                    <span className="inline-block w-24 text-center text-xs px-2.5 py-1 bg-amber-500/10 text-[#e5a93b] border border-amber-500/20 rounded-full font-semibold">
-                      Hôte
-                    </span>
-                  ) : p.isReady ? (
-                    <span className="inline-block w-24 text-center text-xs px-2.5 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full font-semibold">
-                      Prêt
-                    </span>
-                  ) : (
-                    <span className="inline-block w-24 text-center text-xs px-2.5 py-1 bg-[#2d1b10] text-amber-400/60 border border-[#523628]/40 rounded-full">
-                      Attente
-                    </span>
-                  )}
-                </div>
+                <span
+                  className={`text-xs px-2.5 py-1 rounded-xl font-bold flex-shrink-0 border ${
+                    player.isHost
+                      ? "bg-amber-900/40 text-amber-300 border-amber-700/50"
+                      : player.isReady
+                      ? "bg-emerald-950/60 text-emerald-300 border-emerald-800/60"
+                      : "bg-amber-950/40 text-amber-400/60 border-amber-900/30"
+                  }`}
+                >
+                  {player.isHost ? "Hôte" : player.isReady ? "Prêt" : "En attente"}
+                </span>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="flex gap-4">
-          <Button
-            className={`flex-1 font-bold h-12 border rounded-2xl transition-all ${
-              isReady
-                ? "bg-[#3b251b] hover:bg-[#523628] text-amber-500 border-[#523628]"
-                : "bg-[#e5a93b] hover:bg-[#f6bd4f] text-[#1c0f08] border-transparent shadow-md shadow-amber-500/10"
-            }`}
-            onClick={() => onToggleReady(!isReady)}
-          >
-            {isReady ? "Annuler Prêt" : "Je suis Prêt !"}
-          </Button>
+        {/* Spectator Section */}
+        {onLockSpectator && onSetRole && (
+          <div className="mb-6">
+            <SpectatorRolePanel
+              players={players}
+              isHost={isHost}
+              myPeerId={myPeerId}
+              spectators={spectators}
+              spectatorLocks={spectatorLocks}
+              onSetRole={onSetRole}
+              onLockSpectator={onLockSpectator}
+            />
+          </div>
+        )}
+
+        <div className="flex flex-col sm:flex-row gap-3 mt-6">
+          {!isHost && (
+            <Button
+              onClick={() => onToggleReady(!isReady)}
+              className={`flex-1 font-bold h-12 rounded-2xl transition-all text-sm ${
+                isReady
+                  ? "bg-amber-900/40 hover:bg-amber-900/60 text-amber-200 border border-amber-700/50"
+                  : "bg-[#e5a93b] hover:bg-[#f6bd4f] text-[#1c0f08] shadow-md shadow-amber-500/10"
+              }`}
+            >
+              {isReady ? "Annuler prêt" : "Je suis prêt !"}
+            </Button>
+          )}
 
           {isHost && (
             <Button
-              disabled={players.length < 2}
-              className="flex-1 bg-emerald-600 hover:bg-emerald-500 disabled:bg-[#2d1b10] disabled:opacity-50 text-white font-bold h-12 rounded-2xl shadow-md shadow-emerald-500/10 transition-all"
               onClick={onStartGame}
+              disabled={players.length < 2 || !players.every((p) => p.isHost || p.isReady)}
+              className="flex-1 bg-[#e5a93b] hover:bg-[#f6bd4f] text-[#1c0f08] font-bold h-12 rounded-2xl transition-all disabled:opacity-40 shadow-md shadow-amber-500/10 text-sm"
             >
-              Lancer la Partie
+              Lancer la partie ({players.length}/6)
             </Button>
           )}
         </div>
@@ -191,101 +223,53 @@ export const Lobby: React.FC<LobbyProps> = ({
   }
 
   return (
-    <div className="w-full max-w-md mx-auto p-8 bg-[#2d1b10]/60 backdrop-blur-xl border border-[#523628]/60 rounded-3xl shadow-2xl relative overflow-hidden text-amber-50">
-      <div className="text-center mb-8">
-        <span className="text-5xl inline-block mb-3 animate-bounce">🤠</span>
-        <h1 className="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-amber-400 to-amber-300 bg-clip-text text-transparent whitespace-nowrap">
-          SHERIFF & SMUGGLERS
-        </h1>
-        <p className="text-xs uppercase tracking-widest text-amber-400/60 mt-2 font-semibold">
-          Saloon P2P Multi-joueurs
-        </p>
-      </div>
-
-      {error && (
-        <div className="bg-red-950/60 border border-red-900 text-red-200 rounded-2xl p-3 mb-6 text-sm">
-          {error}
-        </div>
-      )}
-
-      <div className="space-y-6">
-        <div>
-          <label htmlFor="player-name" className="block text-xs uppercase tracking-widest font-bold text-amber-400/80 mb-2">
-            Nom du Marchand
-          </label>
-          <input
-            type="text"
-            id="player-name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full bg-[#1c0f08] border border-[#523628]/60 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-[#e5a93b] text-amber-100 transition-all"
-            placeholder="ex: Billy the Kid"
-          />
-        </div>
-
-        <div>
-          <label className="block text-xs uppercase tracking-widest font-bold text-amber-400/80 mb-2">
-            Choisir un Avatar
-          </label>
-          <div className="grid grid-cols-8 gap-2 bg-[#1c0f08] p-2.5 rounded-2xl border border-[#523628]/45">
-            {AVATARS.map((av) => (
-              <button
-                key={av}
-                type="button"
-                onClick={() => setAvatar(av)}
-                className={`text-2xl p-1.5 rounded-xl transition-all flex items-center justify-center aspect-square ${
-                  avatar === av
-                    ? "bg-amber-500/20 border border-[#e5a93b] scale-110"
-                    : "hover:bg-[#3b251b]"
-                }`}
-              >
-                {av}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <hr className="border-[#523628]/40 my-6" />
-
-        <div className="flex flex-col gap-3">
-          <Button
-            className="w-full bg-[#e5a93b] hover:bg-[#f6bd4f] text-[#1c0f08] font-bold h-12 rounded-2xl transition-all shadow-md shadow-amber-500/10"
-            onClick={() => onHost(name, avatar)}
-            disabled={status === 'CONNECTING'}
-          >
-            🤠 Créer un Saloon (Hôte)
-          </Button>
-
-          <div className="relative flex py-2 items-center">
-            <div className="flex-grow border-t border-[#523628]/40"></div>
-            <span className="flex-shrink mx-4 text-amber-500/40 text-xs uppercase tracking-wider font-bold">OU</span>
-            <div className="flex-grow border-t border-[#523628]/40"></div>
-          </div>
-
-          <div className="space-y-2.5">
-            <label htmlFor="room-code" className="block text-xs uppercase tracking-widest font-bold text-amber-400/80 mb-1">
-              Code du Saloon à rejoindre
-            </label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                id="room-code"
-                value={roomIdInput}
-                onChange={(e) => setRoomIdInput(e.target.value.toUpperCase())}
-                className="flex-1 bg-[#1c0f08] border border-[#523628]/60 rounded-2xl px-3 py-2 text-sm focus:outline-none focus:border-[#e5a93b] font-mono tracking-widest text-center text-amber-100 transition-all"
-                placeholder="CODE"
-              />
-              <Button
-                className="bg-[#3b251b] hover:bg-[#523628] text-[#e5a93b] border border-[#523628]/60 font-bold px-6 rounded-2xl transition-all"
-                onClick={() => onJoin(name, avatar, roomIdInput)}
-                disabled={status === 'CONNECTING' || !roomIdInput}
-              >
-                Rejoindre
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <P2PlayLobby
+      title="SHERIFF & SMUGGLERS"
+      subtitle="Saloon P2P Multi-joueurs"
+      bannerEmoji="🤠"
+      theme="amber"
+      avatars={AVATARS}
+      status={status}
+      error={error}
+      maxUsernameLength={15}
+      showVoiceToggle={false}
+      showCharacterCounter={false}
+      defaultUsername={`MARCHAND_${Math.floor(Math.random() * 1000)}`}
+      usernameLabel="Nom du Marchand"
+      usernamePlaceholder="ex: Billy the Kid"
+      avatarLabel="Choisir un Avatar"
+      createButtonText="🤠 Créer un Saloon (Hôte)"
+      compactHostSection={true}
+      joinCodeLabel="Code du Saloon à rejoindre"
+      joinCodePlaceholder="CODE"
+      joinButtonText="Rejoindre"
+      joinLayout="side-by-side"
+      classes={{
+        root: "w-full max-w-md mx-auto p-8 bg-[#2d1b10]/60 backdrop-blur-xl border border-[#523628]/60 rounded-3xl shadow-2xl relative overflow-hidden text-amber-50",
+        header: "text-center mb-8",
+        emoji: "text-5xl inline-block mb-3 animate-bounce",
+        title: "text-4xl font-extrabold tracking-tight bg-gradient-to-r from-amber-400 to-amber-300 bg-clip-text text-transparent whitespace-nowrap",
+        subtitle: "text-xs uppercase tracking-widest text-amber-400/60 mt-2 font-semibold",
+        content: "space-y-6",
+        label: "block text-xs uppercase tracking-widest font-bold text-amber-400/80 mb-2",
+        input: "w-full bg-[#1c0f08] border border-[#523628]/60 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-[#e5a93b] text-amber-100 transition-all text-left font-normal",
+        avatarGrid: "grid grid-cols-8 gap-2 bg-[#1c0f08] p-2.5 rounded-2xl border border-[#523628]/45",
+        avatarItem: "text-2xl p-1.5 rounded-xl transition-all flex items-center justify-center aspect-square hover:bg-[#3b251b]",
+        avatarItemSelected: "text-2xl p-1.5 rounded-xl transition-all flex items-center justify-center aspect-square bg-amber-500/20 border border-[#e5a93b] scale-110",
+        hr: "border-[#523628]/40 my-6",
+        actionGroup: "flex flex-col gap-3",
+        createButton: "w-full bg-[#e5a93b] hover:bg-[#f6bd4f] text-[#1c0f08] font-bold h-12 rounded-2xl transition-all shadow-md shadow-amber-500/10",
+        divider: "relative flex py-2 items-center",
+        dividerLine: "flex-grow border-t border-[#523628]/40",
+        dividerText: "flex-shrink mx-4 text-amber-500/40 text-xs uppercase tracking-wider font-bold",
+        joinWrapper: "space-y-2.5 text-left",
+        joinGroup: "flex gap-2",
+        joinInput: "flex-1 bg-[#1c0f08] border border-[#523628]/60 rounded-2xl px-3 py-2 text-sm focus:outline-none focus:border-[#e5a93b] font-mono tracking-widest text-center text-amber-100 transition-all font-bold uppercase",
+        joinButton: "bg-[#3b251b] hover:bg-[#523628] text-[#e5a93b] border border-[#523628]/60 font-bold px-6 rounded-2xl transition-all",
+        urlNotice: "p-5 bg-[#1c0f08] border border-[#523628]/60 rounded-2xl text-left flex flex-col gap-4",
+      }}
+      onHost={(username, avatar) => onHost(username, avatar)}
+      onJoin={(username, avatar, roomCode) => onJoin(username, avatar, roomCode)}
+    />
   );
 };
