@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { JournalPanel } from "p2play-core/chat";
 import type { GameState } from "../../core/types";
 import { CARD_THEMES, getCardDefinition } from "../../core/cards";
 import { CardView } from "./CardView";
@@ -503,30 +504,12 @@ export const GameBoard: React.FC<GameBoardProps> = ({
         {/* Side Panel (Logs & Chat) */}
         <div className="flex flex-col gap-6">
           {/* Logs */}
-          <div className="flex flex-col h-96 bg-[#2d1b10]/60 border border-[#523628]/60 rounded-3xl overflow-hidden shadow-xl">
-            <div className="bg-[#1c0f08]/50 border-b border-[#523628]/60 px-4 py-2.5 text-xs font-bold text-[#e5a93b] uppercase tracking-widest">
-              Journal du Saloon 📜
-            </div>
-            <div className="flex-1 p-3 overflow-y-auto space-y-1.5 text-xs font-mono">
-              {gameState.logs.map((log) => (
-                <div key={log.id} className="text-amber-100/90 leading-relaxed break-words">
-                  <span className="text-[#e5a93b]/50 font-bold mr-1">[{log.timestamp}]</span>
-                  <span className={`${
-                    log.type === 'warning' ? 'text-red-400 font-semibold' :
-                    log.type === 'system' ? 'text-cyan-400 font-semibold' :
-                    log.type === 'phase' ? 'text-emerald-400 font-bold' :
-                    log.type === 'sheriff' ? 'text-[#e5a93b] font-bold' :
-                    log.type === 'bribe' ? 'text-yellow-400 font-semibold' :
-                    log.type === 'inspection-liar' ? 'text-red-500 font-bold' :
-                    log.type === 'inspection-honest' ? 'text-emerald-500 font-bold' :
-                    'text-amber-100/80'
-                  }`}>
-                    {log.message}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
+          <JournalPanel
+            entries={gameState.logs}
+            title="Journal du Saloon"
+            className="flex flex-col h-96 bg-[#2d1b10]/60 border border-[#523628]/60 rounded-3xl overflow-hidden shadow-xl p-4 text-xs font-mono text-amber-100"
+            maxHeight="320px"
+          />
 
           {/* Chat */}
           <ChatBox messages={chatMessages} onSendMessage={onSendChat} />
