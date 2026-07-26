@@ -1,0 +1,9 @@
+{
+  "key": "sheriff",
+  "name": "Sheriff & Smugglers",
+  "emoji": "🤠",
+  "desc": "Négociation & Pots-de-vin.",
+  "hasPreConfig": true,
+  "avatars": ["🤠", "👩‍🌾", "🧙‍♂️", "👨‍🍳", "👰‍♀️", "🤵‍♂️", "🌵", "🐎"],
+  "shellBackground": "radial-gradient(circle at center, #1b1206 0%, #09090b 100%)"
+}
