@@ -7,6 +7,7 @@ import { GameBoard } from "./components/game/GameBoard";
 import { SpectatorView } from "./components/game/SpectatorView";
 import { ShieldAlert, FileText, X } from "lucide-react";
 import { SoundToggle } from "./components/ui/SoundToggle";
+import { VoiceChatPanel } from "p2play-core/voice";
 
 interface AppProps {
   isEmbedded?: boolean;
@@ -285,6 +286,18 @@ function App({ isEmbedded = false, externalPeerManager, playerName, playerAvatar
               </section>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Voice Chat Saloon Overlay (Rendered in standalone mode only; Hub renders its own root overlay) */}
+      {!isEmbedded && game.peerManager && game.status === "CONNECTED" && (
+        <div className="fixed top-24 left-4 z-[200]">
+          <VoiceChatPanel
+            peerManager={game.peerManager}
+            username={game.localPlayerName || playerName}
+            avatar={game.localPlayerAvatar || playerAvatar}
+            title="Voice Chat Saloon"
+          />
         </div>
       )}
     </div>

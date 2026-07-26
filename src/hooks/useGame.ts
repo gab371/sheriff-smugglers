@@ -393,6 +393,7 @@ export function useGame(options?: UseGameOptions) {
     isHost,
     myPeerId,
     hostPeerId: p2p.hostPeerId,
+    peerManager: p2p.peerManager,
     connectedPeers: p2p.connectedPeers,
     chatMessages,
     gameState,
