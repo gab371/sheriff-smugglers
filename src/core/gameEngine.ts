@@ -2,6 +2,7 @@ import type { GameState, Player, Card, GameLog, DeckTheme } from "./types";
 import { CARD_THEMES, createDeck, shuffleDeck, getCardDefinition } from "./cards";
 import { calculateFinalScores } from "./scoring";
 import { canChangeRole, spectatorConfigFromIds } from "p2play-core/spectator";
+import { remapRecordKey } from "p2play-core/presence";
 
 export interface GameEngineOptions {
   roundsPerPlayer?: number;
@@ -147,6 +148,41 @@ export class GameEngine {
 
   public isLocked(peerId: string): boolean {
     return !!this.state.spectatorLocks[peerId];
+  }
+
+  public markDisconnected(id: string): void {
+    const p = this.state.players.find((p) => p.id === id);
+    if (p) {
+      p.disconnected = true;
+      this.addLog(`${p.name} s'est déconnecté (reconnexion possible).`, 'warning');
+    }
+  }
+
+  public isDisconnected(id: string): boolean {
+    return !!this.state.players.find((p) => p.id === id)?.disconnected;
+  }
+
+  public remapPlayerId(
+    oldId: string,
+    newId: string,
+    profile?: { username?: string; avatar?: string },
+  ): boolean {
+    const p = this.state.players.find((p) => p.id === oldId);
+    if (!p) return false;
+    p.id = newId;
+    p.disconnected = false;
+    if (profile?.username) p.name = profile.username;
+    if (profile?.avatar) p.avatar = profile.avatar;
+
+    remapRecordKey(this.state.bags, oldId, newId);
+    remapRecordKey(this.state.activeBribes, oldId, newId);
+    remapRecordKey(this.state.marketPlayerStates, oldId, newId);
+    remapRecordKey(this.state.spectatorLocks, oldId, newId);
+    const specIdx = this.state.spectators.findIndex((s) => s.id === oldId);
+    if (specIdx !== -1) this.state.spectators[specIdx].id = newId;
+
+    this.addLog(`${p.name} s'est reconnecté.`, 'system');
+    return true;
   }
 
   public removePlayer(id: string): void {

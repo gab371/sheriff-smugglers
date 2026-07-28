@@ -1,4 +1,9 @@
 import { useEffect, useRef, useState, useCallback } from "react";
+import {
+  attachPresenceHandlers,
+  createSeatEngine,
+  handleJoinGameSeat,
+} from "p2play-core/presence";
 import { usePeer } from "./usePeer";
 import { GameEngine } from "../core/gameEngine";
 import { sanitizeGameState, sanitizeGameStateForSpectator } from "../network/protocol";
@@ -136,49 +141,72 @@ export function useGame(options?: UseGameOptions) {
       }, 0);
     }
 
-    peerManager.hostActionHandler = (_senderPeerId, actionMsg) => {
-      const msg = actionMsg as NetworkMessage;
-      if (msg.type === 'ACTION') {
+    const getSeatEngine = () =>
+      createSeatEngine({
+        getPhase: () => engine.state.phase,
+        getPlayers: () => engine.state.players,
+        getSpectators: () => engine.state.spectators,
+        markDisconnected: (id) => engine.markDisconnected(id),
+        isDisconnected: (id) => engine.isDisconnected(id),
+        remapPlayerId: (o, n, p) => engine.remapPlayerId(o, n, p),
+        removePlayer: (id) => engine.removePlayer(id),
+      });
+
+    const presence = attachPresenceHandlers({
+      peerManager,
+      getEngine: getSeatEngine,
+      onBroadcast: () => broadcastSanitizedStates(engine.state),
+      onHostAction: (_senderPeerId, actionMsg) => {
+        const msg = actionMsg as NetworkMessage;
+        if (msg.type !== "ACTION") return;
         const { actionName, playerId, payload } = msg;
 
         switch (actionName) {
-          case 'JOIN_GAME':
-            if (engine.state.phase === 'LOBBY') {
-              engine.addPlayer(playerId, payload.name, payload.avatar, playerId === myPeerId);
-            } else {
-              // Late joiner: a running game only accepts spectators.
-              engine.addSpectator(playerId, payload.name, payload.avatar);
-            }
+          case "JOIN_GAME": {
+            handleJoinGameSeat({
+              engine: getSeatEngine(),
+              playerId,
+              payload: { name: payload?.name, avatar: payload?.avatar },
+              isHostPlayer: playerId === myPeerId,
+              addPlayer: (id, name, avatar, isHost) =>
+                engine.addPlayer(id, name, avatar, isHost),
+              addSpectator: (id, name, avatar) =>
+                engine.addSpectator(id, name, avatar),
+            });
             break;
+          }
 
-          case 'TOGGLE_READY':
+          case "TOGGLE_READY":
             engine.setPlayerReady(playerId, payload.readyStatus);
             // Auto ready up logs
             const p = engine.state.players.find((pl) => pl.id === playerId);
             if (p) {
-              engine.addLog(`${p.name} est ${payload.readyStatus ? 'prêt !' : 'en attente...'}`, 'info');
+              engine.addLog(
+                `${p.name} est ${payload.readyStatus ? "prêt !" : "en attente..."}`,
+                "info",
+              );
             }
             break;
 
-          case 'START_GAME':
+          case "START_GAME":
             if (playerId === myPeerId) {
               const success = engine.startGame();
               if (success) {
-                playSfx('gavel');
+                playSfx("gavel");
               }
             }
             break;
 
-          case 'CHANGE_DECK_THEME':
+          case "CHANGE_DECK_THEME":
             if (playerId === myPeerId) {
               engine.changeDeckTheme(payload.theme);
             }
             break;
 
-          case 'SET_ROLE': {
+          case "SET_ROLE": {
             const requesterIsHost = playerId === myPeerId;
             const targetId = payload.peerId as string;
-            const nextRole = payload.role as 'player' | 'spectator';
+            const nextRole = payload.role as "player" | "spectator";
             if (requesterIsHost || targetId === playerId) {
               engine.setPlayerRole(targetId, nextRole, {
                 requesterPeerId: playerId,
@@ -188,12 +216,12 @@ export function useGame(options?: UseGameOptions) {
             break;
           }
 
-          case 'LOCK_SPECTATOR':
+          case "LOCK_SPECTATOR":
             if (playerId === myPeerId) {
               const targetId = payload.peerId as string;
               const locked = !!payload.locked;
               if (locked) {
-                engine.setPlayerRole(targetId, 'spectator', {
+                engine.setPlayerRole(targetId, "spectator", {
                   requesterPeerId: playerId,
                   requesterIsHost: true,
                 });
@@ -202,51 +230,54 @@ export function useGame(options?: UseGameOptions) {
             }
             break;
 
-          case 'MARKET_DISCARD':
+          case "MARKET_DISCARD":
             engine.merchantMarketDiscard(playerId, payload.discardUids);
-            playSfx('card');
+            playSfx("card");
             break;
 
-          case 'MARKET_DRAW':
+          case "MARKET_DRAW":
             engine.merchantMarketDrawOne(playerId, payload.source);
-            playSfx('card');
+            playSfx("card");
             break;
 
-          case 'LOAD_BAG':
+          case "LOAD_BAG":
             engine.loadBag(playerId, payload.cardUids);
-            playSfx('bagsnap');
+            playSfx("bagsnap");
             break;
 
-          case 'DECLARE_BAG':
+          case "DECLARE_BAG":
             engine.declareBag(playerId, payload.declaredGoodId);
-            playSfx('gavel');
+            playSfx("gavel");
             break;
 
-          case 'OFFER_BRIBE':
-            engine.offerBribe(playerId, { gold: payload.gold, text: payload.text });
-            playSfx('coin');
+          case "OFFER_BRIBE":
+            engine.offerBribe(playerId, {
+              gold: payload.gold,
+              text: payload.text,
+            });
+            playSfx("coin");
             break;
 
-          case 'SHERIFF_PASS':
+          case "SHERIFF_PASS":
             if (engine.getSheriff().id === playerId) {
               engine.sheriffPassBag(payload.merchantId);
-              playSfx('coin');
+              playSfx("coin");
             }
             break;
 
-          case 'SHERIFF_INSPECT':
+          case "SHERIFF_INSPECT":
             if (engine.getSheriff().id === playerId) {
               engine.sheriffInspectBag(payload.merchantId);
               // The Sheriff "looks into the bag": bag snap then gavel.
-              playSfx('bagsnap');
-              playSfx('gavel');
+              playSfx("bagsnap");
+              playSfx("gavel");
             }
             break;
 
-          case 'NEXT_ROUND':
+          case "NEXT_ROUND":
             if (engine.getSheriff().id === playerId) {
               engine.nextRound();
-              playSfx('gavel');
+              playSfx("gavel");
             }
             break;
         }
@@ -254,27 +285,17 @@ export function useGame(options?: UseGameOptions) {
         broadcastSanitizedStates(engine.state);
 
         // Play a victory fanfare once when the game ends (broadcast to all peers).
-        if (engine.state.phase === 'GAME_OVER' && !victoryPlayedRef.current) {
+        if (engine.state.phase === "GAME_OVER" && !victoryPlayedRef.current) {
           victoryPlayedRef.current = true;
-          playSfx('victory');
-        } else if (engine.state.phase !== 'GAME_OVER') {
+          playSfx("victory");
+        } else if (engine.state.phase !== "GAME_OVER") {
           victoryPlayedRef.current = false;
         }
-      }
-    };
-
-    peerManager.onPeerStatusChange = (peerId: string, peerStatus: 'CONNECTED' | 'DISCONNECTED') => {
-      if (peerStatus === 'DISCONNECTED') {
-        engine.removePlayer(peerId);
-        broadcastSanitizedStates(engine.state);
-      } else if (peerStatus === 'CONNECTED') {
-        broadcastSanitizedStates(engine.state);
-      }
-    };
+      },
+    });
 
     return () => {
-      peerManager.hostActionHandler = null;
-      peerManager.onPeerStatusChange = null;
+      presence.dispose();
     };
   }, [isHost, myPeerId, peerManager, playSfx, broadcastSanitizedStates]);
 
@@ -313,7 +334,7 @@ export function useGame(options?: UseGameOptions) {
   const hostRoom = useCallback(async (name: string, avatar: string) => {
     setLocalPlayerName(name);
     setLocalPlayerAvatar(avatar);
-    const roomId = await hostGame();
+    const roomId = await hostGame(undefined, { username: name, avatar });
     const engine = new GameEngine();
     gameEngineRef.current = engine;
     engine.addPlayer(roomId, name, avatar, true);
@@ -323,11 +344,11 @@ export function useGame(options?: UseGameOptions) {
   const joinRoom = useCallback(async (name: string, avatar: string, roomId: string) => {
     setLocalPlayerName(name);
     setLocalPlayerAvatar(avatar);
-    const id = await joinGame(roomId);
+    const { peerId } = await joinGame(roomId, { username: name, avatar });
     setTimeout(() => {
       peerManager.sendToHost('ACTION', {
         actionName: 'JOIN_GAME',
-        playerId: id,
+        playerId: peerId,
         payload: { name, avatar },
       });
     }, 1000);

@@ -27,6 +27,7 @@ export interface Player {
   stand: { [cardId: string]: Card[] };
   contraband: Card[];
   isReady: boolean;
+  disconnected?: boolean;
 }
 
 export type GamePhase =

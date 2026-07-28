@@ -299,7 +299,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
                     <div className="flex items-center gap-2 font-bold font-serif">
                       <span className="text-2xl">{p.avatar}</span>
                       <span className="text-amber-105">
-                        {p.name} {isLocal ? "(Vous)" : ""}
+                        {p.name} {isLocal ? "(Vous)" : ""}{p.disconnected ? " ⚠ Déconnecté" : ""}
                       </span>
                       {isPlayerSheriff && (
                         <span className="bg-[#e5a93b] text-[#1c0f08] text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">
