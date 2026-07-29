@@ -1,13 +1,15 @@
 import { useState } from "react";
 declare const __APP_VERSION__: string;
 import type { PeerManagerLike } from "p2play-core";
+import { RoomCodeBadge } from "p2play-core";
 import { useGame } from "./hooks/useGame";
 import { Lobby } from "./components/game/Lobby";
 import { GameBoard } from "./components/game/GameBoard";
 import { SpectatorView } from "./components/game/SpectatorView";
 import { ShieldAlert, FileText, X } from "lucide-react";
-import { SoundToggle } from "./components/ui/SoundToggle";
+import { SoundToggle } from "p2play-core/ui";
 import { VoiceChatPanel } from "p2play-core/voice";
+import { soundManager } from "./core/soundFX";
 
 interface AppProps {
   isEmbedded?: boolean;
@@ -23,17 +25,7 @@ interface AppProps {
 
 function App({ isEmbedded = false, externalPeerManager, playerName, playerAvatar, isHost, lateJoin, gameConfig, hubPhase, onExit }: AppProps) {
   const game = useGame({ externalPeerManager, isEmbedded, playerName, playerAvatar, isHost, lateJoin, gameConfig, hubPhase });
-  const [copied, setCopied] = useState(false);
   const [showRules, setShowRules] = useState(false);
-
-  const handleCopy = () => {
-    if (game.hostPeerId) {
-      navigator.clipboard.writeText(game.hostPeerId).then(() => {
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-      });
-    }
-  };
 
   const showLobby = !game.gameState || game.gameState.phase === 'LOBBY';
   const localIsSpectator = !!game.gameState?.spectators.some((s) => s.id === game.myPeerId);
@@ -85,16 +77,17 @@ function App({ isEmbedded = false, externalPeerManager, playerName, playerAvatar
             <span>Règles</span>
           </button>
 
-          <SoundToggle className="bg-[#3b251b] hover:bg-[#523628] text-amber-300 hover:text-amber-100 border-[#523628]/60" />
+          <SoundToggle soundManager={soundManager} className="bg-[#3b251b] hover:bg-[#523628] text-amber-300 hover:text-amber-100 border-[#523628]/60" />
 
           {game.gameState && game.gameState.phase !== 'LOBBY' && (
             <div className="flex items-center gap-2 border-l border-[#523628]/40 pl-3">
-              <button
-                onClick={handleCopy}
-                className="text-xs px-2.5 py-1.5 bg-[#2c180e] hover:bg-[#3d2315] text-amber-300 hover:text-amber-100 rounded-xl transition-all border border-[#523628]/40 font-bold"
-              >
-                {copied ? "Copié !" : "Copier le code"}
-              </button>
+              {game.hostPeerId && (
+                <RoomCodeBadge
+                  code={game.hostPeerId}
+                  accentClassName="text-amber-300"
+                  className="border-[#523628]/40 bg-[#2c180e] text-amber-200/80"
+                />
+              )}
               <button
                 onClick={isEmbedded && onExit && game.isHost ? onExit : game.disconnect}
                 className="text-xs px-2.5 py-1.5 bg-red-950/20 hover:bg-red-900/20 text-red-400 border border-red-900/30 rounded-xl transition-all font-bold"

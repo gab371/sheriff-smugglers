@@ -6,6 +6,7 @@ import { CardView } from "./CardView";
 import { ChatBox } from "./ChatBox";
 import type { ChatMessage } from "../../network/protocol";
 import { Button } from "../ui/button";
+import { Badge } from "p2play-core/ui";
 
 interface GameBoardProps {
   gameState: GameState;
@@ -298,8 +299,9 @@ export const GameBoard: React.FC<GameBoardProps> = ({
                   <div className="flex justify-between items-center border-b border-[#523628]/40 pb-2">
                     <div className="flex items-center gap-2 font-bold font-serif">
                       <span className="text-2xl">{p.avatar}</span>
-                      <span className="text-amber-105">
-                        {p.name} {isLocal ? "(Vous)" : ""}{p.disconnected ? " ⚠ Déconnecté" : ""}
+                      <span className="text-amber-105 flex items-center gap-1.5">
+                        {p.name} {isLocal ? "(Vous)" : ""}
+                        {p.disconnected && <Badge variant="destructive">Déconnecté</Badge>}
                       </span>
                       {isPlayerSheriff && (
                         <span className="bg-[#e5a93b] text-[#1c0f08] text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">
@@ -509,6 +511,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
             title="Journal du Saloon"
             className="flex flex-col h-96 bg-[#2d1b10]/60 border border-[#523628]/60 rounded-3xl overflow-hidden shadow-xl p-4 text-xs font-mono text-amber-100"
             maxHeight="320px"
+            scrollbarAccent="amber"
           />
 
           {/* Chat */}

@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 import type { Player, DeckTheme } from "../../core/types";
 import { Button } from "../ui/button";
+import { Badge } from "p2play-core/ui";
 import { SpectatorRolePanel } from "./SpectatorRolePanel";
-import { copyRoomUrlToClipboard } from "p2play-core/url";
-import { P2PlayLobby } from "p2play-core";
+import { CopyRoomLinkButton, P2PlayLobby } from "p2play-core";
 
 interface LobbyProps {
   myPeerId: string | null;
@@ -46,21 +46,8 @@ export const Lobby: React.FC<LobbyProps> = ({
   deckTheme = 'WESTERN',
   onChangeDeckTheme,
 }) => {
-  const [copied, setCopied] = useState(false);
-
   const localPlayer = players.find((p) => p.id === myPeerId);
   const isReady = localPlayer?.isReady || false;
-
-  const handleCopy = () => {
-    if (hostPeerId) {
-      copyRoomUrlToClipboard(hostPeerId).then((success: boolean) => {
-        if (success) {
-          setCopied(true);
-          setTimeout(() => setCopied(false), 2000);
-        }
-      });
-    }
-  };
 
   if (status === 'CONNECTED' && myPeerId) {
     return (
@@ -75,16 +62,14 @@ export const Lobby: React.FC<LobbyProps> = ({
           <div className="mb-6 p-4 bg-[#1c0f08] border border-[#523628]/60 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
             <div className="flex items-center gap-2 text-amber-200">
               <span className="text-amber-500 font-bold">Code du Saloon:</span>
-              <code className="font-mono bg-[#2d1b10] px-3 py-1 rounded-xl border border-[#523628]/40 font-bold text-amber-300 tracking-wider">
+              <code className="inline-flex items-center gap-1 font-mono bg-[#2d1b10] pl-3 pr-1 py-1 rounded-xl border border-[#523628]/40 font-bold text-amber-300 tracking-wider">
                 {hostPeerId}
+                <CopyRoomLinkButton
+                  code={hostPeerId}
+                  className="text-amber-400/80 hover:text-amber-200 hover:bg-amber-500/10"
+                />
               </code>
             </div>
-            <Button
-              onClick={handleCopy}
-              className="bg-[#3b251b] hover:bg-[#523628] text-amber-300 border border-[#523628]/60 text-xs px-4 py-2 rounded-xl transition-all w-full sm:w-auto"
-            >
-              {copied ? "✓ Lien copié !" : "📋 Copier le lien"}
-            </Button>
           </div>
         )}
 
@@ -92,44 +77,47 @@ export const Lobby: React.FC<LobbyProps> = ({
           <div className="mb-6 p-4 bg-[#1c0f08] border border-[#523628]/60 rounded-2xl flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-amber-400">Thème du paquet :</span>
             <div className="flex bg-[#2d1b10] p-1 rounded-xl border border-[#523628]/40 text-xs">
-              <button
+              <Button
                 type="button"
+                variant="ghost"
                 onClick={() => onChangeDeckTheme('WESTERN')}
-                className={`px-3 py-1 rounded-lg font-bold transition-all ${
+                className={`h-auto px-3 py-1 rounded-lg font-bold ${
                   deckTheme === 'WESTERN'
-                    ? "bg-[#e5a93b] text-[#1c0f08] shadow"
+                    ? "bg-[#e5a93b] text-[#1c0f08] shadow hover:bg-[#e5a93b]"
                     : "text-amber-400/60 hover:text-amber-200"
                 }`}
               >
                 🤠 Far West
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
+                variant="ghost"
                 onClick={() => onChangeDeckTheme('MEDIEVAL')}
-                className={`px-3 py-1 rounded-lg font-bold transition-all ${
+                className={`h-auto px-3 py-1 rounded-lg font-bold ${
                   deckTheme === 'MEDIEVAL'
-                    ? "bg-[#e5a93b] text-[#1c0f08] shadow"
+                    ? "bg-[#e5a93b] text-[#1c0f08] shadow hover:bg-[#e5a93b]"
                     : "text-amber-400/60 hover:text-amber-200"
                 }`}
               >
                 🏰 Médiéval
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
+                variant="ghost"
                 onClick={() => onChangeDeckTheme('MODERN')}
-                className={`px-3 py-1 rounded-lg font-bold transition-all ${
+                className={`h-auto px-3 py-1 rounded-lg font-bold ${
                   deckTheme === 'MODERN'
-                    ? "bg-[#e5a93b] text-[#1c0f08] shadow"
+                    ? "bg-[#e5a93b] text-[#1c0f08] shadow hover:bg-[#e5a93b]"
                     : "text-amber-400/60 hover:text-amber-200"
                 }`}
               >
                 🌆 Moderne
-              </button>
+              </Button>
             </div>
           </div>
         )}
 
-        <div className="space-y-3 mb-6">
+        <div className="flex flex-col gap-3 mb-6">
           <h3 className="text-xs uppercase tracking-wider font-bold text-amber-500/80 px-1">
             Marchands à la table ({players.length})
           </h3>
@@ -154,17 +142,18 @@ export const Lobby: React.FC<LobbyProps> = ({
                     )}
                   </div>
                 </div>
-                <span
-                  className={`text-xs px-2.5 py-1 rounded-xl font-bold flex-shrink-0 border ${
+                <Badge
+                  variant={player.isHost ? "default" : player.isReady ? "secondary" : "outline"}
+                  className={
                     player.isHost
                       ? "bg-amber-900/40 text-amber-300 border-amber-700/50"
                       : player.isReady
                       ? "bg-emerald-950/60 text-emerald-300 border-emerald-800/60"
                       : "bg-amber-950/40 text-amber-400/60 border-amber-900/30"
-                  }`}
+                  }
                 >
                   {player.isHost ? "Hôte" : player.isReady ? "Prêt" : "En attente"}
-                </span>
+                </Badge>
               </div>
             ))}
           </div>
@@ -211,12 +200,13 @@ export const Lobby: React.FC<LobbyProps> = ({
         </div>
 
         <div className="mt-6 text-center">
-          <button
+          <Button
+            variant="link"
             onClick={onDisconnect}
-            className="text-xs text-amber-500/50 hover:text-amber-300 underline transition-all"
+            className="text-xs text-amber-500/50 hover:text-amber-300 h-auto p-0"
           >
             Quitter le saloon
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -252,10 +242,10 @@ export const Lobby: React.FC<LobbyProps> = ({
         subtitle: "text-xs uppercase tracking-widest text-amber-400/60 mt-2 font-semibold",
         content: "space-y-6",
         label: "block text-xs uppercase tracking-widest font-bold text-amber-400/80 mb-2",
-        input: "w-full bg-[#1c0f08] border border-[#523628]/60 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-[#e5a93b] text-amber-100 transition-all text-left font-normal",
+        input: "w-full bg-[#1c0f08] dark:bg-[#1c0f08] border border-[#523628]/60 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-[#e5a93b] text-amber-100 transition-all text-left font-normal",
         avatarGrid: "grid grid-cols-8 gap-2 bg-[#1c0f08] p-2.5 rounded-2xl border border-[#523628]/45",
-        avatarItem: "text-2xl p-1.5 rounded-xl transition-all flex items-center justify-center aspect-square hover:bg-[#3b251b]",
-        avatarItemSelected: "text-2xl p-1.5 rounded-xl transition-all flex items-center justify-center aspect-square bg-amber-500/20 border border-[#e5a93b] scale-110",
+        avatarItem: "text-2xl p-1.5 rounded-xl transition-all flex items-center justify-center aspect-square border-2 border-transparent hover:bg-[#3b251b]",
+        avatarItemSelected: "text-2xl p-1.5 rounded-xl transition-all flex items-center justify-center aspect-square bg-amber-500/20 border-2 border-[#e5a93b] scale-110 shadow-[0_0_12px_rgba(229,169,59,0.35)]",
         hr: "border-[#523628]/40 my-6",
         actionGroup: "flex flex-col gap-3",
         createButton: "w-full bg-[#e5a93b] hover:bg-[#f6bd4f] text-[#1c0f08] font-bold h-12 rounded-2xl transition-all shadow-md shadow-amber-500/10",
@@ -264,7 +254,7 @@ export const Lobby: React.FC<LobbyProps> = ({
         dividerText: "flex-shrink mx-4 text-amber-500/40 text-xs uppercase tracking-wider font-bold",
         joinWrapper: "space-y-2.5 text-left",
         joinGroup: "flex gap-2",
-        joinInput: "flex-1 bg-[#1c0f08] border border-[#523628]/60 rounded-2xl px-3 py-2 text-sm focus:outline-none focus:border-[#e5a93b] font-mono tracking-widest text-center text-amber-100 transition-all font-bold uppercase",
+        joinInput: "flex-1 bg-[#1c0f08] dark:bg-[#1c0f08] border border-[#523628]/60 rounded-2xl px-3 py-2 text-sm focus:outline-none focus:border-[#e5a93b] font-mono tracking-widest text-center text-amber-100 transition-all font-bold uppercase",
         joinButton: "bg-[#3b251b] hover:bg-[#523628] text-[#e5a93b] border border-[#523628]/60 font-bold px-6 rounded-2xl transition-all",
         urlNotice: "p-5 bg-[#1c0f08] border border-[#523628]/60 rounded-2xl text-left flex flex-col gap-4",
       }}

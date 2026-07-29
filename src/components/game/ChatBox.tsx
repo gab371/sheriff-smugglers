@@ -16,6 +16,7 @@ export const ChatBox: React.FC<ChatBoxProps> = ({ messages, onSendMessage }) => 
       placeholder="Un pot-de-vin en secret ?..."
       emptyLabel="Aucun message. Clavardez avec les autres marchands..."
       className="flex flex-col h-72 bg-[#1c0f08] border border-[#523628] rounded-xl p-3 overflow-hidden text-amber-100 font-sans"
+      scrollbarAccent="amber"
     />
   );
 };

@@ -3,7 +3,12 @@ const { fontFamily } = require("tailwindcss/defaultTheme")
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: ["class"],
-  content: ["./index.html", "./src/**/*.{ts,tsx,js,jsx}"],
+  content: [
+    "./index.html",
+    "./src/**/*.{ts,tsx,js,jsx}",
+    "./node_modules/p2play-core/dist/**/*.{js,mjs}",
+    "../p2play-core/src/**/*.{ts,tsx}",
+  ],
   theme: {
     container: {
       center: true,
