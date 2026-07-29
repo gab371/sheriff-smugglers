@@ -7,6 +7,7 @@ import { ChatBox } from "./ChatBox";
 import type { ChatMessage } from "../../network/protocol";
 import { Button } from "../ui/button";
 import { Badge } from "p2play-core/ui";
+import { ExpandToggle } from "./ExpandToggle";
 
 interface GameBoardProps {
   gameState: GameState;
@@ -22,6 +23,8 @@ interface GameBoardProps {
   onNextRound: () => void;
   onSendChat: (text: string) => void;
   onDisconnect: () => void;
+  boardExpanded?: boolean;
+  onToggleExpand?: () => void;
 }
 
 export const GameBoard: React.FC<GameBoardProps> = ({
@@ -38,6 +41,8 @@ export const GameBoard: React.FC<GameBoardProps> = ({
   onNextRound,
   onSendChat,
   onDisconnect,
+  boardExpanded = false,
+  onToggleExpand,
 }) => {
   const theme = gameState.deckTheme || 'WESTERN';
   const legalGoods = Object.keys(CARD_THEMES[theme]).filter(
@@ -163,26 +168,41 @@ export const GameBoard: React.FC<GameBoardProps> = ({
   }
 
   return (
-    <div className="flex flex-col gap-6 text-amber-50 max-w-7xl mx-auto px-2">
+    <div
+      className={`flex flex-col gap-6 text-amber-50 px-2 ${
+        boardExpanded ? "w-full max-w-none" : "max-w-7xl mx-auto"
+      }`}
+    >
       {/* Header Info */}
       <header className="flex flex-col sm:flex-row justify-between items-center bg-[#2d1b10]/60 backdrop-blur-md border border-[#523628]/60 rounded-3xl px-5 py-4 gap-2">
         <div className="font-serif font-bold text-[#e5a93b] tracking-wide text-lg">
           🤠 {getPhaseLabel(phase)}
         </div>
-        <div className="text-sm font-semibold flex items-center gap-4">
+        <div className="text-sm font-semibold flex items-center gap-3">
           <span className="bg-[#1c0f08] px-3 py-1.5 rounded-full border border-[#523628]/60 font-mono text-amber-300/80">
             Manche {gameState.roundNumber} / {gameState.totalRounds}
           </span>
           <span className="text-[#e5a93b] bg-[#2d1b10]/60 px-3 py-1.5 rounded-full border border-[#523628]/60">
             Votre Bourse : <strong>{localPlayer?.gold || 0} 🪙</strong>
           </span>
+          {onToggleExpand && (
+            <ExpandToggle
+              expanded={boardExpanded}
+              onToggle={onToggleExpand}
+              className="shrink-0 w-9 h-9 flex items-center justify-center rounded-xl border border-[#523628]/60 bg-[#1c0f08]/90 text-amber-200 hover:border-[#e5a93b]/70 transition-all"
+            />
+          )}
         </div>
       </header>
 
       {/* Main Desk */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div
+        className={`grid grid-cols-1 gap-6 ${
+          boardExpanded ? "xl:grid-cols-5" : "lg:grid-cols-4"
+        }`}
+      >
         {/* Table Area */}
-        <div className="lg:col-span-3 flex flex-col gap-6">
+        <div className={`flex flex-col gap-6 ${boardExpanded ? "xl:col-span-4" : "lg:col-span-3"}`}>
           {/* Sheriff Desk Banner */}
           <div className="bg-[#2d1b10]/60 backdrop-blur-md border border-[#523628]/60 rounded-3xl p-5 flex flex-col sm:flex-row justify-between items-center gap-4 shadow-xl">
             <div className="flex items-center gap-3">
@@ -282,7 +302,13 @@ export const GameBoard: React.FC<GameBoardProps> = ({
           </div>
 
           {/* Opponents Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div
+            className={
+              boardExpanded
+                ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+                : "grid grid-cols-1 md:grid-cols-2 gap-4"
+            }
+          >
             {gameState.players.map((p) => {
               const isPlayerSheriff = p.id === sheriff?.id;
               const bag = gameState.bags[p.id];

@@ -3,6 +3,7 @@ declare const __APP_VERSION__: string;
 import type { PeerManagerLike } from "p2play-core";
 import { RoomCodeBadge } from "p2play-core";
 import { useGame } from "./hooks/useGame";
+import { useBoardExpand } from "./hooks/useBoardExpand";
 import { Lobby } from "./components/game/Lobby";
 import { GameBoard } from "./components/game/GameBoard";
 import { SpectatorView } from "./components/game/SpectatorView";
@@ -29,13 +30,23 @@ function App({ isEmbedded = false, externalPeerManager, playerName, playerAvatar
 
   const showLobby = !game.gameState || game.gameState.phase === 'LOBBY';
   const localIsSpectator = !!game.gameState?.spectators.some((s) => s.id === game.myPeerId);
+  const { expanded: boardExpanded, toggle: toggleExpand } = useBoardExpand(
+    showLobby || localIsSpectator,
+  );
 
   return (
-    <div className="min-h-screen text-amber-50 font-sans flex flex-col justify-between selection:bg-[#e5a93b] selection:text-[#1c0f08] relative">
+    <div
+      className={
+        boardExpanded
+          ? "h-screen overflow-hidden text-amber-50 font-sans flex flex-col relative selection:bg-[#e5a93b] selection:text-[#1c0f08]"
+          : "min-h-screen text-amber-50 font-sans flex flex-col justify-between selection:bg-[#e5a93b] selection:text-[#1c0f08] relative"
+      }
+    >
       {/* Saloon Background Wood Radial Glow decoration */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(229,169,59,0.08),transparent_70%)] pointer-events-none" />
 
       {/* Header */}
+      {!boardExpanded && (
       <header className="max-w-7xl mx-auto w-full flex items-center justify-between py-6 px-4 border-b border-[#523628]/40 relative z-10">
         <div className="flex items-center gap-3">
           <ShieldAlert className="w-6 h-6 text-[#e5a93b] animate-pulse" />
@@ -99,9 +110,16 @@ function App({ isEmbedded = false, externalPeerManager, playerName, playerAvatar
           )}
         </div>
       </header>
+      )}
 
       {/* Main content */}
-      <main className="flex-1 w-full max-w-7xl mx-auto px-4 py-8 relative z-10">
+      <main
+        className={
+          boardExpanded
+            ? "fixed inset-0 z-40 overflow-auto px-4 py-4 bg-[radial-gradient(circle_at_center,#1b1206_0%,#09090b_100%)]"
+            : "flex-1 w-full max-w-7xl mx-auto px-4 py-8 relative z-10"
+        }
+      >
         {showLobby ? (
           <Lobby
             myPeerId={game.myPeerId}
@@ -128,24 +146,29 @@ function App({ isEmbedded = false, externalPeerManager, playerName, playerAvatar
             onDisconnect={isEmbedded && onExit ? onExit : game.disconnect}
           />
         ) : (
-          <GameBoard
-            gameState={game.gameState!}
-            localPlayerId={game.myPeerId || ""}
-            chatMessages={game.chatMessages}
-            onMarketDiscard={game.discardMarket}
-            onMarketDrawOne={game.drawMarket}
-            onLoadBag={game.loadBag}
-            onDeclareBag={game.declareBag}
-            onOfferBribe={game.offerBribe}
-            onSheriffPass={game.sheriffPass}
-            onSheriffInspect={game.sheriffInspect}
-            onNextRound={game.nextRound}
-            onSendChat={game.sendChatMessage}
-            onDisconnect={game.disconnect}
-          />
+          <div>
+            <GameBoard
+              gameState={game.gameState!}
+              localPlayerId={game.myPeerId || ""}
+              chatMessages={game.chatMessages}
+              onMarketDiscard={game.discardMarket}
+              onMarketDrawOne={game.drawMarket}
+              onLoadBag={game.loadBag}
+              onDeclareBag={game.declareBag}
+              onOfferBribe={game.offerBribe}
+              onSheriffPass={game.sheriffPass}
+              onSheriffInspect={game.sheriffInspect}
+              onNextRound={game.nextRound}
+              onSendChat={game.sendChatMessage}
+              onDisconnect={game.disconnect}
+              boardExpanded={boardExpanded}
+              onToggleExpand={toggleExpand}
+            />
+          </div>
         )}
       </main>
 
+      {!boardExpanded && (
       <footer className="max-w-7xl mx-auto w-full text-center text-[10px] text-amber-600/50 py-6 px-4 border-t border-[#523628]/20 flex justify-between items-center">
         <div>
           Sheriff & Smugglers - Réseau Privé Peer-to-Peer - Version v{__APP_VERSION__}
@@ -171,6 +194,7 @@ function App({ isEmbedded = false, externalPeerManager, playerName, playerAvatar
           <span>Dépôt GitHub</span>
         </a>
       </footer>
+      )}
 
       {/* Rules Modal */}
       {showRules && (
