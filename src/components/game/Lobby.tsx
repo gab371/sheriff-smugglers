@@ -14,7 +14,7 @@ interface LobbyProps {
   spectators?: Player[];
   spectatorLocks?: { [peerId: string]: boolean };
   isHost: boolean;
-  onHost: (name: string, avatar: string) => void;
+  onHost: (name: string, avatar: string, enableVoice?: boolean) => void;
   onJoin: (name: string, avatar: string, roomId: string) => void;
   onToggleReady: (ready: boolean) => void;
   onStartGame: () => void;
@@ -222,7 +222,7 @@ export const Lobby: React.FC<LobbyProps> = ({
       status={status}
       error={error}
       maxUsernameLength={15}
-      showVoiceToggle={false}
+      showVoiceToggle={true}
       showCharacterCounter={false}
       defaultUsername={`MARCHAND_${Math.floor(Math.random() * 1000)}`}
       usernameLabel="Nom du Marchand"
@@ -258,7 +258,7 @@ export const Lobby: React.FC<LobbyProps> = ({
         joinButton: "bg-[#3b251b] hover:bg-[#523628] text-[#e5a93b] border border-[#523628]/60 font-bold px-6 rounded-2xl transition-all",
         urlNotice: "p-5 bg-[#1c0f08] border border-[#523628]/60 rounded-2xl text-left flex flex-col gap-4",
       }}
-      onHost={(username, avatar) => onHost(username, avatar)}
+      onCreateRoom={(_code, username, avatar, enableVoice) => onHost(username, avatar, enableVoice)}
       onJoin={(username, avatar, roomCode) => onJoin(username, avatar, roomCode)}
     />
   );

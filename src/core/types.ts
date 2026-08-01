@@ -103,6 +103,8 @@ export interface GameState {
   logs: GameLog[];
   winnerScores: WinnerScore[] | null;
   deckTheme: DeckTheme;
+  /** Host-chosen at room creation; when false, VoiceChatPanel stays unmounted (Discord, etc.). */
+  enableVoice: boolean;
   spectators: Player[];
   spectatorLocks: { [peerId: string]: boolean };
 }

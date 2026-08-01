@@ -67,6 +67,17 @@ function App({ isEmbedded = false, externalPeerManager, playerName, playerAvatar
               SALOON CONNECTÉ
             </div>
           )}
+          {game.status === 'CONNECTED' && game.gameState && (
+            <div
+              className={
+                game.gameState.enableVoice !== false
+                  ? "flex items-center gap-1.5 bg-amber-950/80 border border-amber-800 text-amber-300 px-3 py-1.5 rounded-full font-bold"
+                  : "flex items-center gap-1.5 bg-[#2d1b10] border border-[#523628]/60 text-amber-500/50 px-3 py-1.5 rounded-full font-bold"
+              }
+            >
+              {game.gameState.enableVoice !== false ? "🎙️ Vocal Actif" : "🔇 Vocal Désactivé"}
+            </div>
+          )}
           {game.status === 'CONNECTING' && (
             <div className="flex items-center gap-1.5 bg-amber-950/80 border border-amber-800 text-amber-400 px-3 py-1.5 rounded-full font-bold">
               <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-bounce" />
@@ -306,8 +317,12 @@ function App({ isEmbedded = false, externalPeerManager, playerName, playerAvatar
         </div>
       )}
 
-      {/* Voice Chat Saloon Overlay (Rendered in standalone mode only; Hub renders its own root overlay) */}
-      {!isEmbedded && game.peerManager && game.status === "CONNECTED" && (
+      {/* Voice Chat Saloon Overlay (standalone only; Hub owns voice when embedded) */}
+      {!isEmbedded &&
+        game.peerManager &&
+        game.status === "CONNECTED" &&
+        !!game.gameState &&
+        game.gameState.enableVoice !== false && (
         <div className="fixed top-24 left-4 z-[200]">
           <VoiceChatPanel
             peerManager={game.peerManager}

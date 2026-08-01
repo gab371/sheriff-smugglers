@@ -33,6 +33,7 @@ export class GameEngine {
       logs: [],
       winnerScores: null,
       deckTheme: 'WESTERN',
+      enableVoice: true,
       spectators: [],
       spectatorLocks: {},
     };

@@ -338,12 +338,13 @@ export function useGame(options?: UseGameOptions) {
   ]);
 
   // Client actions
-  const hostRoom = useCallback(async (name: string, avatar: string) => {
+  const hostRoom = useCallback(async (name: string, avatar: string, enableVoice: boolean = true) => {
     setLocalPlayerName(name);
     setLocalPlayerAvatar(avatar);
     const roomId = await hostGame(undefined, { username: name, avatar });
     const engine = new GameEngine();
     gameEngineRef.current = engine;
+    engine.state.enableVoice = enableVoice;
     engine.addPlayer(roomId, name, avatar, true);
     broadcastSanitizedStates(engine.state, roomId);
   }, [hostGame, broadcastSanitizedStates]);
